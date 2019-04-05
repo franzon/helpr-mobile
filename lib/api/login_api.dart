@@ -5,7 +5,7 @@ import 'package:mobile/utils/constants.dart';
 
 class UserApi {
   static Future<Map> getUser(String email) async {
-    // await new Future.delayed(const Duration(seconds: 4)); //recommend
+     await new Future.delayed(const Duration(seconds: 2)); //recommend
 
     final response = await http.get("$apiUrl/auth/get-user/$email");
     final responseJson = json.decode(response.body);

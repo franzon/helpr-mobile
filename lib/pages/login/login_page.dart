@@ -12,47 +12,40 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final emailListener = BehaviorSubject<TextOutput>();
-  final clickListener =
-      BehaviorSubject<ButtonStatus>.seeded(ButtonStatus.initial);
-
-  bool showButton = false;
+  String email = "";
+  bool isLoading = false;
+  bool showContinueButton = false;
 
   void continueButtonPressed() async {
-    // Useless befause button only appears when email is valid.
-    if (this.emailListener.hasValue && this.emailListener.value.valid) {
-      final user = await UserApi.getUser(this.emailListener.value.value);
+    debugPrint("click");
+    setState(() {
+      isLoading = true;
+    });
+    final user = await UserApi.getUser(email);
+    setState(() {
+      isLoading = false;
+    });
 
-      this.clickListener.add(ButtonStatus.completed);
-
-      if (user["name"] != null) {
-        Navigator.pushNamed(context, "/login/password");
-      } else {
-        Navigator.pushNamed(context, "/login/new-user");
-      }
+    if (user["name"] != null) {
+      Navigator.pushNamed(context, "/login/password");
+    } else {
+      Navigator.pushNamed(context, "/login/new-user");
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    emailListener.listen((data) {
+  void emailChanged(bool isValid, String email) async {
+    this.email = email;
+    if (isValid) {
       setState(() {
-        showButton = data.valid;
+        isLoading = false;
+        showContinueButton = true;
       });
-    });
-
-    clickListener.where((item) => item == ButtonStatus.loading).listen((x) {
-      debugPrint('clicked');
-      this.continueButtonPressed();
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    emailListener.close();
-    clickListener.close();
+    } else {
+      setState(() {
+        isLoading = false;
+        showContinueButton = false;
+      });
+    }
   }
 
   @override
@@ -105,7 +98,8 @@ class _LoginPageState extends State<LoginPage> {
                     Padding(
                       padding: const EdgeInsets.only(left: 40, right: 40),
                       child: HelprEmailInput(
-                        output: emailListener,
+                        callback: emailChanged,
+                        // output: emailListener,
                       ),
                     )
                   ],
@@ -117,15 +111,18 @@ class _LoginPageState extends State<LoginPage> {
                 child: Row(
                   children: <Widget>[
                     Expanded(
-                      child: showButton
-                          ? Padding(
-                              padding: EdgeInsets.only(left: 40, right: 40),
+                        child: Padding(
+                            padding: EdgeInsets.only(left: 40, right: 40),
+                            child: AnimatedOpacity(
+                              opacity: showContinueButton ? 1.0 : 0.0,
+                              duration: Duration(milliseconds: 150),
                               child: HelprButton(
-                                text: "CONTINUAR",
-                                clickListener: clickListener,
-                              ))
-                          : Container(),
-                    ),
+                                  text: "CONTINUAR",
+                                  isLoading: isLoading,
+                                  callback: showContinueButton
+                                      ? continueButtonPressed
+                                      : null),
+                            ))),
                   ],
                 ),
               ),
