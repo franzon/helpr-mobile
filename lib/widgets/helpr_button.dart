@@ -1,42 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:rxdart/rxdart.dart';
 
-enum ButtonStatus { initial, loading, completed }
-
-class HelprButton extends StatefulWidget {
+class HelprButton extends StatelessWidget {
+  final bool isLoading;
   final String text;
-  final BehaviorSubject<ButtonStatus> clickListener;
+  final Function callback;
 
-  HelprButton({@required this.text, @required this.clickListener});
-
-  @override
-  _HelprButtonState createState() =>
-      _HelprButtonState(text: text, clickListener: this.clickListener);
-}
-
-class _HelprButtonState extends State<HelprButton> {
-  final String text;
-  final BehaviorSubject<ButtonStatus> clickListener;
-  bool loading = false;
-
-  _HelprButtonState({@required this.text, @required this.clickListener});
-
-  @override
-  void initState() {
-    super.initState();
-    this
-        .clickListener
-        .where((item) => item == ButtonStatus.completed)
-        .listen((_) {
-      if (this.mounted) {
-        debugPrint('mounted');
-        setState(() {
-          this.loading = false;
-        });
-      }
-    });
-  }
+  HelprButton(
+      {@required this.isLoading, @required this.text, @required this.callback});
 
   @override
   Widget build(BuildContext context) {
@@ -44,13 +15,10 @@ class _HelprButtonState extends State<HelprButton> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         clipBehavior: Clip.antiAlias,
         color: Theme.of(context).primaryColor,
-        child: !this.loading
+        child: !this.isLoading
             ? InkWell(
                 onTap: () {
-                  setState(() {
-                    this.loading = true;
-                  });
-                  this.clickListener.add(ButtonStatus.loading);
+                  if (callback != null) callback();
                 },
                 child: Container(
                   alignment: Alignment.center,
