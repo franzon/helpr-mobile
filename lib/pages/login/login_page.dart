@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
 import 'package:mobile/api/login_api.dart';
 import 'package:mobile/pages/login/login.dart';
-import 'package:mobile/utils/constants.dart';
 import 'package:mobile/widgets/helpr_button.dart';
 import 'package:mobile/widgets/helpr_email_input.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:animated_text_kit/animated_text_kit.dart';
-import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
 
 class LoginPage extends StatefulWidget {
   @override

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
 import 'package:mobile/api/login_api.dart';
 import 'package:mobile/widgets/helpr_button.dart';
 import 'package:mobile/widgets/helpr_password_input.dart';
-import 'package:page_transition/page_transition.dart';
 
 class LoginPasswordPage extends StatefulWidget {
   final String email;
@@ -44,26 +44,10 @@ class _LoginPasswordPageState extends State<LoginPasswordPage>
   }
 
   void continueButtonPressed() async {
-    await UserApi.signIn(email, password);
-    // debugPrint("click");
-    // setState(() {
-    //   isLoading = true;
-    // });
-    // final user = await UserApi.getUser(email);
-    // setState(() {
-    //   isLoading = false;
-    // });
-
-    // if (user["name"] != null) {
-    //   // Navigator.pushNamed(context, "/login/password");
-    //   Navigator.push(
-    //       context,
-    //       PageTransition(
-    //           type: PageTransitionType.rightToLeft,
-    //           child: LoginPasswordPage()));
-    // } else {
-    //   Navigator.pushNamed(context, "/login/new-user");
-    // }
+    try {
+      final result = await UserApi.signIn(email, password);
+      FlutterKeychain.put(key: "token", value: result["token"]);
+    } catch (e) {}
   }
 
   void passwordChanged(bool isValid, String password) async {
