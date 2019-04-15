@@ -1,0 +1,5 @@
+com.example.mobile
+color grey
+drawable launch_background
+mipmap launcher_icon
+style LaunchTheme
