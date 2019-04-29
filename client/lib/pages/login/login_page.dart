@@ -5,6 +5,7 @@ import 'package:mobile/pages/login/login.dart';
 import 'package:mobile/widgets/helpr_button.dart';
 import 'package:mobile/widgets/helpr_email_input.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:mobile/pages/confirmation/send_confirmation_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -79,7 +80,13 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 name: user["name"],
               )));
     } else {
-      Navigator.pushNamed(context, "/login/new-user");
+      Navigator.push(
+        context,
+        PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: SendEmailConfirmationPage(email: email),
+        ),
+      );
     }
   }
 
