@@ -1,4 +1,0 @@
-int color grey 0x7f010000
-int drawable launch_background 0x7f020000
-int mipmap launcher_icon 0x7f030000
-int style LaunchTheme 0x7f040000
