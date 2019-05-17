@@ -24,7 +24,7 @@ class _HelprEmailInputState extends State<HelprEmailInput> {
   void initState() {
     super.initState();
 
-    input.debounce(new Duration(milliseconds: 300)).listen((text) {
+    input.debounceTime(new Duration(milliseconds: 300)).listen((text) {
       bool correctFormat = this.regex.hasMatch(text);
       callback(correctFormat, text);
     });
