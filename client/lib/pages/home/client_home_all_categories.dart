@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile/api/categories_api.dart';
+import 'package:mobile/blocs/categories_bloc.dart';
 import 'package:mobile/models/Category.dart';
 import 'package:mobile/pages/home/client_home_page.dart';
 import 'package:mobile/utils/constants.dart';
@@ -36,20 +38,23 @@ class _ClientHomeAllCategoriesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: CategoriesApi.getAllCategories(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+    final CategoriesBloc categoriesBloc =
+        BlocProvider.of<CategoriesBloc>(context);
+
+    return BlocBuilder(
+      bloc: categoriesBloc,
+      builder: (BuildContext context, CategoriesState state) {
+        if (state is CategoriesUninitialized || state is CategoriesLoading) {
           return SpinKitWave(
             color: colors["primaryColor"],
             size: 20,
           );
-        } else if (snapshot.connectionState == ConnectionState.done) {
+        } else if (state is CategoriesLoaded) {
           return GridView.count(
             shrinkWrap: true,
             crossAxisCount: 3,
             children: <Widget>[
-              for (Category category in snapshot.data)
+              for (Category category in state.categories)
                 CategoryIcon(name: category.name, id: category.id),
             ],
           );

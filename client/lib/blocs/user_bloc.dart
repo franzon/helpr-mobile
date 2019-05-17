@@ -24,7 +24,7 @@ abstract class UserEvent extends Equatable {
   UserEvent([List props = const []]) : super(props);
 }
 
-class LoadPage extends UserEvent {}
+class LoadUserPage extends UserEvent {}
 
 class LoadUser extends UserEvent {}
 // Bloc
@@ -35,7 +35,7 @@ class UserBloc extends Bloc<UserEvent, UserState> {
 
   @override
   Stream<UserState> mapEventToState(UserEvent event) async* {
-    if (event is LoadPage) {
+    if (event is LoadUserPage) {
       yield UserLoading();
     } else if (event is LoadUser) {
       final User user = await UserApi.getUserInfo();

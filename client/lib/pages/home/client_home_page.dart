@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile/api/categories_api.dart';
+import 'package:mobile/blocs/categories_bloc.dart';
 import 'package:mobile/blocs/user_bloc.dart';
 import 'package:mobile/models/Category.dart';
 import 'package:mobile/pages/home/client_home_all_categories.dart';
@@ -46,9 +47,14 @@ class _ClientHomePageState extends State<ClientHomePage> {
   @override
   Widget build(BuildContext context) {
     final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
+    final CategoriesBloc categoriesBloc =
+        BlocProvider.of<CategoriesBloc>(context);
 
-    userBloc.dispatch(LoadPage());
+    userBloc.dispatch(LoadUserPage());
     userBloc.dispatch(LoadUser());
+
+    categoriesBloc.dispatch(LoadCategoriesPage());
+    categoriesBloc.dispatch(LoadCategories());
 
     return Scaffold(
       drawer: ClientHomeDrawer(),
@@ -108,7 +114,8 @@ class _ClientHomeHeader extends StatelessWidget {
                       BlocBuilder(
                         bloc: userBloc,
                         builder: (BuildContext context, UserState state) {
-                          if (state is UserLoading) {
+                          if (state is UserUninitialized ||
+                              state is UserLoading) {
                             return Text("...");
                           } else if (state is UserLoaded) {
                             return Text(state.user.name,
@@ -174,6 +181,9 @@ class _ClientHomeGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CategoriesBloc categoriesBloc =
+        BlocProvider.of<CategoriesBloc>(context);
+
     return Expanded(
       flex: 2,
       child: Container(
@@ -197,31 +207,30 @@ class _ClientHomeGrid extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  height: 190,
-                  width: 300,
-                  child: FutureBuilder(
-                    future: CategoriesApi.getPopularCategories(5),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return SpinKitWave(
-                          color: colors["primaryColor"],
-                          size: 20,
-                        );
-                      } else if (snapshot.connectionState ==
-                          ConnectionState.done) {
-                        return GridView.count(
-                          shrinkWrap: true,
-                          crossAxisCount: 3,
-                          children: <Widget>[
-                            for (Category category in snapshot.data)
-                              CategoryIcon(
-                                  name: category.name, id: category.id),
-                          ],
-                        );
-                      }
-                    },
-                  ),
-                ),
+                    height: 190,
+                    width: 300,
+                    child: BlocBuilder(
+                      bloc: categoriesBloc,
+                      builder: (BuildContext context, CategoriesState state) {
+                        if (state is CategoriesUninitialized ||
+                            state is CategoriesLoading) {
+                          return SpinKitWave(
+                            color: colors["primaryColor"],
+                            size: 20,
+                          );
+                        } else if (state is CategoriesLoaded) {
+                          return GridView.count(
+                            shrinkWrap: true,
+                            crossAxisCount: 3,
+                            children: <Widget>[
+                              for (Category category in state.popularCategories)
+                                CategoryIcon(
+                                    name: category.name, id: category.id),
+                            ],
+                          );
+                        }
+                      },
+                    )),
                 Padding(
                   padding: const EdgeInsets.all(15),
                   child: GestureDetector(
@@ -295,7 +304,8 @@ class _ClientHomeFooter extends StatelessWidget {
                                 bloc: userBloc,
                                 builder:
                                     (BuildContext context, UserState state) {
-                                  if (state is UserLoading) {
+                                  if (state is UserUninitialized ||
+                                      state is UserLoading) {
                                     return Text("...");
                                   } else if (state is UserLoaded) {
                                     return Text(
@@ -346,7 +356,8 @@ class _ClientHomeFooter extends StatelessWidget {
                                 bloc: userBloc,
                                 builder:
                                     (BuildContext context, UserState state) {
-                                  if (state is UserLoading) {
+                                  if (state is UserUninitialized ||
+                                      state is UserLoading) {
                                     return Text("...");
                                   } else if (state is UserLoaded) {
                                     return Text(
