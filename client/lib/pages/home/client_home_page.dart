@@ -88,7 +88,7 @@ class ClientHomePage extends StatelessWidget {
                                           Padding(
                                             padding: const EdgeInsets.all(15),
                                             child: Text(
-                                              "Principais categorias",
+                                              "Do que precisa hoje?",
                                               style: TextStyle(
                                                   color: Colors.white,
                                                   fontFamily: "Montserrat",
@@ -124,14 +124,14 @@ class ClientHomePage extends StatelessWidget {
                                                       "assets/icons/laptop.png",
                                                 ),
                                                 CategoryIcon(
-                                                  text: "Informática",
+                                                  text: "Pintor",
                                                   iconPath:
-                                                      "assets/icons/laptop.png",
+                                                      "assets/icons/painter.png",
                                                 ),
                                                 CategoryIcon(
-                                                  text: "Informática",
+                                                  text: "Pintor",
                                                   iconPath:
-                                                      "assets/icons/laptop.png",
+                                                      "assets/icons/painter.png",
                                                 ),
                                               ],
                                             ),
@@ -151,44 +151,6 @@ class ClientHomePage extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                // child: Container(
-                                //   decoration: BoxDecoration(
-                                //       color: colors["backgroundColor2"],
-                                //       borderRadius: BorderRadius.circular(5)),
-                                //   child: Container(
-                                //     margin: EdgeInsets.all(30),
-                                //     child: GridView.count(
-                                //       mainAxisSpacing: 0,
-                                //       crossAxisCount: 2,
-                                //       children: <Widget>[
-                                //         CategoryIcon(
-                                //           text: "Pedreiro",
-                                //           iconPath: "assets/icons/worker.png",
-                                //         ),
-                                //         CategoryIcon(
-                                //           text: "Pintor",
-                                //           iconPath: "assets/icons/painter.png",
-                                //         ),
-                                //         CategoryIcon(
-                                //           text: "Encanador",
-                                //           iconPath: "assets/icons/gas-pipe.png",
-                                //         ),
-                                //         CategoryIcon(
-                                //           text: "Informática",
-                                //           iconPath: "assets/icons/laptop.png",
-                                //         ),
-                                //         CategoryIcon(
-                                //           text: "Encanador",
-                                //           iconPath: "assets/icons/gas-pipe.png",
-                                //         ),
-                                //         CategoryIcon(
-                                //           text: "Informática",
-                                //           iconPath: "assets/icons/laptop.png",
-                                //         ),
-                                //       ],
-                                //     ),
-                                //   ),
-                                // ),
                               ),
                               Expanded(
                                 flex: 1,
@@ -203,7 +165,50 @@ class ClientHomePage extends StatelessWidget {
                                       Expanded(
                                         child: Container(
                                           margin: EdgeInsets.only(right: 5),
-                                          child: Text("a"),
+                                          child: Column(
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(15.0),
+                                                child: Text(
+                                                  "Reputação",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: "Montserrat",
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(15.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    Image.asset(
+                                                        "assets/icons/reputation.png"),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 15.0),
+                                                      child: Text(
+                                                        "700",
+                                                        style: TextStyle(
+                                                          color: colors[
+                                                              "primaryColor"],
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontFamily:
+                                                              "Montserrat",
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              )
+                                            ],
+                                          ),
                                           decoration: BoxDecoration(
                                               color: colors["backgroundColor2"],
                                               borderRadius:
@@ -213,7 +218,50 @@ class ClientHomePage extends StatelessWidget {
                                       Expanded(
                                         child: Container(
                                           margin: EdgeInsets.only(right: 5),
-                                          child: Text("b"),
+                                          child: Column(
+                                            children: <Widget>[
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(15.0),
+                                                child: Text(
+                                                  "Créditos",
+                                                  style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: "Montserrat",
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.all(15.0),
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    Image.asset(
+                                                        "assets/icons/dollar.png"),
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 15.0),
+                                                      child: Text(
+                                                        "500",
+                                                        style: TextStyle(
+                                                          color: colors[
+                                                              "primaryColor"],
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontFamily:
+                                                              "Montserrat",
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              )
+                                            ],
+                                          ),
                                           decoration: BoxDecoration(
                                               color: colors["backgroundColor2"],
                                               borderRadius:
