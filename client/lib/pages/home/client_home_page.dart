@@ -1,26 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mobile/api/categories_api.dart';
+import 'package:mobile/blocs/user_bloc.dart';
+import 'package:mobile/models/Category.dart';
 import 'package:mobile/pages/home/client_home_all_categories.dart';
 import 'package:mobile/pages/home/client_home_drawer.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:simple_animations/simple_animations.dart';
 
 import 'package:mobile/utils/constants.dart';
 
 class CategoryIcon extends StatelessWidget {
-  final String iconPath;
-  final String text;
+  final String id;
+  final String name;
 
-  CategoryIcon({@required this.iconPath, @required this.text});
+  CategoryIcon({@required this.id, @required this.name});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Image.asset(this.iconPath),
+        Image.asset("assets/icons/" + this.id + ".png"),
         Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: Text(
-            this.text,
+            this.name,
             style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),
           ),
         )
@@ -29,27 +35,43 @@ class CategoryIcon extends StatelessWidget {
   }
 }
 
-class ClientHomePage extends StatelessWidget {
+class ClientHomePage extends StatefulWidget {
   const ClientHomePage({Key key}) : super(key: key);
 
   @override
+  _ClientHomePageState createState() => _ClientHomePageState();
+}
+
+class _ClientHomePageState extends State<ClientHomePage> {
+  @override
   Widget build(BuildContext context) {
+    final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
+
+    userBloc.dispatch(LoadPage());
+    userBloc.dispatch(LoadUser());
+
     return Scaffold(
       drawer: ClientHomeDrawer(),
       body: Stack(
-        children: <Widget>[ClientHomeHeader(), ClientHomeSearch()],
+        children: <Widget>[
+          _ClientHomeHeader(
+              /*  userBloc: this.userBloc */
+              ),
+          _ClientHomeSearch()
+        ],
       ),
     );
   }
 }
 
-class ClientHomeHeader extends StatelessWidget {
-  const ClientHomeHeader({
-    Key key,
-  }) : super(key: key);
+class _ClientHomeHeader extends StatelessWidget {
+  const _ClientHomeHeader({Key key /* @required this.userBloc */})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
+
     return Column(
       children: <Widget>[
         Expanded(
@@ -83,12 +105,21 @@ class ClientHomeHeader extends StatelessWidget {
                             fontSize: 20,
                             fontFamily: "Montserrat"),
                       ),
-                      Text("Jorge",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20,
-                              fontFamily: "Montserrat"))
+                      BlocBuilder(
+                        bloc: userBloc,
+                        builder: (BuildContext context, UserState state) {
+                          if (state is UserLoading) {
+                            return Text("...");
+                          } else if (state is UserLoaded) {
+                            return Text(state.user.name,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    fontFamily: "Montserrat"));
+                          }
+                        },
+                      ),
                     ],
                   ),
                   Container(
@@ -104,14 +135,14 @@ class ClientHomeHeader extends StatelessWidget {
             ),
           ),
         ),
-        ClientHomeBody()
+        _ClientHomeBody()
       ],
     );
   }
 }
 
-class ClientHomeBody extends StatelessWidget {
-  const ClientHomeBody({
+class _ClientHomeBody extends StatelessWidget {
+  const _ClientHomeBody({
     Key key,
   }) : super(key: key);
 
@@ -127,7 +158,7 @@ class ClientHomeBody extends StatelessWidget {
                 padding: const EdgeInsets.only(
                     left: 20.0, right: 20.0, bottom: 30.0, top: 70.0),
                 child: Column(
-                  children: <Widget>[ClientHomeGrid(), ClientHomeFooter()],
+                  children: <Widget>[_ClientHomeGrid(), _ClientHomeFooter()],
                 ),
               )
             ],
@@ -136,8 +167,8 @@ class ClientHomeBody extends StatelessWidget {
   }
 }
 
-class ClientHomeGrid extends StatelessWidget {
-  const ClientHomeGrid({
+class _ClientHomeGrid extends StatelessWidget {
+  const _ClientHomeGrid({
     Key key,
   }) : super(key: key);
 
@@ -168,35 +199,27 @@ class ClientHomeGrid extends StatelessWidget {
                 SizedBox(
                   height: 190,
                   width: 300,
-                  child: GridView.count(
-                    shrinkWrap: true,
-                    crossAxisCount: 3,
-                    children: <Widget>[
-                      CategoryIcon(
-                        text: "Pedreiro",
-                        iconPath: "assets/icons/worker.png",
-                      ),
-                      CategoryIcon(
-                        text: "Pintor",
-                        iconPath: "assets/icons/painter.png",
-                      ),
-                      CategoryIcon(
-                        text: "Encanador",
-                        iconPath: "assets/icons/gas-pipe.png",
-                      ),
-                      CategoryIcon(
-                        text: "Informática",
-                        iconPath: "assets/icons/laptop.png",
-                      ),
-                      CategoryIcon(
-                        text: "Pintor",
-                        iconPath: "assets/icons/painter.png",
-                      ),
-                      CategoryIcon(
-                        text: "Pintor",
-                        iconPath: "assets/icons/painter.png",
-                      ),
-                    ],
+                  child: FutureBuilder(
+                    future: CategoriesApi.getPopularCategories(5),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return SpinKitWave(
+                          color: colors["primaryColor"],
+                          size: 20,
+                        );
+                      } else if (snapshot.connectionState ==
+                          ConnectionState.done) {
+                        return GridView.count(
+                          shrinkWrap: true,
+                          crossAxisCount: 3,
+                          children: <Widget>[
+                            for (Category category in snapshot.data)
+                              CategoryIcon(
+                                  name: category.name, id: category.id),
+                          ],
+                        );
+                      }
+                    },
                   ),
                 ),
                 Padding(
@@ -228,13 +251,15 @@ class ClientHomeGrid extends StatelessWidget {
   }
 }
 
-class ClientHomeFooter extends StatelessWidget {
-  const ClientHomeFooter({
+class _ClientHomeFooter extends StatelessWidget {
+  const _ClientHomeFooter({
     Key key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
+
     return Expanded(
       flex: 1,
       child: Padding(
@@ -265,16 +290,25 @@ class ClientHomeFooter extends StatelessWidget {
                         children: <Widget>[
                           Image.asset("assets/icons/reputation.png"),
                           Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: Text(
-                              "700",
-                              style: TextStyle(
-                                color: colors["primaryColor"],
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "Montserrat",
-                              ),
-                            ),
-                          )
+                              padding: const EdgeInsets.only(left: 15.0),
+                              child: BlocBuilder(
+                                bloc: userBloc,
+                                builder:
+                                    (BuildContext context, UserState state) {
+                                  if (state is UserLoading) {
+                                    return Text("...");
+                                  } else if (state is UserLoaded) {
+                                    return Text(
+                                      state.user.reputation.toString(),
+                                      style: TextStyle(
+                                        color: colors["primaryColor"],
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Montserrat",
+                                      ),
+                                    );
+                                  }
+                                },
+                              ))
                         ],
                       ),
                     )
@@ -307,16 +341,25 @@ class ClientHomeFooter extends StatelessWidget {
                         children: <Widget>[
                           Image.asset("assets/icons/dollar.png"),
                           Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: Text(
-                              "500",
-                              style: TextStyle(
-                                color: colors["primaryColor"],
-                                fontWeight: FontWeight.bold,
-                                fontFamily: "Montserrat",
-                              ),
-                            ),
-                          )
+                              padding: const EdgeInsets.only(left: 15.0),
+                              child: BlocBuilder(
+                                bloc: userBloc,
+                                builder:
+                                    (BuildContext context, UserState state) {
+                                  if (state is UserLoading) {
+                                    return Text("...");
+                                  } else if (state is UserLoaded) {
+                                    return Text(
+                                      state.user.credits.toString(),
+                                      style: TextStyle(
+                                        color: colors["primaryColor"],
+                                        fontWeight: FontWeight.bold,
+                                        fontFamily: "Montserrat",
+                                      ),
+                                    );
+                                  }
+                                },
+                              ))
                         ],
                       ),
                     )
@@ -334,8 +377,8 @@ class ClientHomeFooter extends StatelessWidget {
   }
 }
 
-class ClientHomeSearch extends StatelessWidget {
-  const ClientHomeSearch({
+class _ClientHomeSearch extends StatelessWidget {
+  const _ClientHomeSearch({
     Key key,
   }) : super(key: key);
 
