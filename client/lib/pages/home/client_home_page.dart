@@ -1,6 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/utils/constants.dart';
 
+class CategoryIcon extends StatelessWidget {
+  final String iconPath;
+  final String text;
+
+  CategoryIcon({@required this.iconPath, @required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Image.asset(this.iconPath),
+        Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Text(
+            this.text,
+            style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),
+          ),
+        )
+      ],
+    );
+  }
+}
+
 class ClientHomePage extends StatelessWidget {
   const ClientHomePage({Key key}) : super(key: key);
 
@@ -47,9 +71,8 @@ class ClientHomePage extends StatelessWidget {
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(
-                              left: 30.0, right: 30.0, bottom: 30.0, top: 70.0),
+                              left: 20.0, right: 20.0, bottom: 30.0, top: 70.0),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               Expanded(
                                 flex: 2,
@@ -57,25 +80,147 @@ class ClientHomePage extends StatelessWidget {
                                   decoration: BoxDecoration(
                                       color: colors["backgroundColor2"],
                                       borderRadius: BorderRadius.circular(5)),
-                                  child: GridView.count(
-                                    crossAxisCount: 2,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: <Widget>[
-                                      Center(child: Text("A")),
-                                      Center(child: Text("B")),
-                                      Center(child: Text("C")),
-                                      Center(child: Text("D"))
+                                      Column(
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: const EdgeInsets.all(15),
+                                            child: Text(
+                                              "Principais categorias",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontFamily: "Montserrat",
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16),
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            height: 190,
+                                            width: 250,
+                                            child: GridView.count(
+                                              shrinkWrap: true,
+                                              crossAxisCount: 3,
+                                              children: <Widget>[
+                                                CategoryIcon(
+                                                  text: "Pedreiro",
+                                                  iconPath:
+                                                      "assets/icons/worker.png",
+                                                ),
+                                                CategoryIcon(
+                                                  text: "Pintor",
+                                                  iconPath:
+                                                      "assets/icons/painter.png",
+                                                ),
+                                                CategoryIcon(
+                                                  text: "Encanador",
+                                                  iconPath:
+                                                      "assets/icons/gas-pipe.png",
+                                                ),
+                                                CategoryIcon(
+                                                  text: "Informática",
+                                                  iconPath:
+                                                      "assets/icons/laptop.png",
+                                                ),
+                                                CategoryIcon(
+                                                  text: "Informática",
+                                                  iconPath:
+                                                      "assets/icons/laptop.png",
+                                                ),
+                                                CategoryIcon(
+                                                  text: "Informática",
+                                                  iconPath:
+                                                      "assets/icons/laptop.png",
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(15),
+                                            child: Text(
+                                              "Mais",
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontFamily: "Montserrat",
+                                                  fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ],
+                                      )
                                     ],
                                   ),
                                 ),
+                                // child: Container(
+                                //   decoration: BoxDecoration(
+                                //       color: colors["backgroundColor2"],
+                                //       borderRadius: BorderRadius.circular(5)),
+                                //   child: Container(
+                                //     margin: EdgeInsets.all(30),
+                                //     child: GridView.count(
+                                //       mainAxisSpacing: 0,
+                                //       crossAxisCount: 2,
+                                //       children: <Widget>[
+                                //         CategoryIcon(
+                                //           text: "Pedreiro",
+                                //           iconPath: "assets/icons/worker.png",
+                                //         ),
+                                //         CategoryIcon(
+                                //           text: "Pintor",
+                                //           iconPath: "assets/icons/painter.png",
+                                //         ),
+                                //         CategoryIcon(
+                                //           text: "Encanador",
+                                //           iconPath: "assets/icons/gas-pipe.png",
+                                //         ),
+                                //         CategoryIcon(
+                                //           text: "Informática",
+                                //           iconPath: "assets/icons/laptop.png",
+                                //         ),
+                                //         CategoryIcon(
+                                //           text: "Encanador",
+                                //           iconPath: "assets/icons/gas-pipe.png",
+                                //         ),
+                                //         CategoryIcon(
+                                //           text: "Informática",
+                                //           iconPath: "assets/icons/laptop.png",
+                                //         ),
+                                //       ],
+                                //     ),
+                                //   ),
+                                // ),
                               ),
                               Expanded(
                                 flex: 1,
                                 child: Padding(
                                   padding: const EdgeInsets.only(top: 20.0),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        color: colors["backgroundColor2"],
-                                        borderRadius: BorderRadius.circular(5)),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: <Widget>[
+                                      Expanded(
+                                        child: Container(
+                                          margin: EdgeInsets.only(right: 5),
+                                          child: Text("a"),
+                                          decoration: BoxDecoration(
+                                              color: colors["backgroundColor2"],
+                                              borderRadius:
+                                                  BorderRadius.circular(5)),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Container(
+                                          margin: EdgeInsets.only(right: 5),
+                                          child: Text("b"),
+                                          decoration: BoxDecoration(
+                                              color: colors["backgroundColor2"],
+                                              borderRadius:
+                                                  BorderRadius.circular(5)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               )
