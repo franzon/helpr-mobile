@@ -1,16 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:mobile/api/categories_api.dart';
 import 'package:mobile/blocs/categories_bloc.dart';
 import 'package:mobile/blocs/user_bloc.dart';
 import 'package:mobile/models/Category.dart';
 import 'package:mobile/pages/home/client_home_all_categories.dart';
 import 'package:mobile/pages/home/client_home_drawer.dart';
-import 'package:page_transition/page_transition.dart';
-import 'package:simple_animations/simple_animations.dart';
-
 import 'package:mobile/utils/constants.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:keyboard_visibility/keyboard_visibility.dart';
+
+class _SearchModel with ChangeNotifier {
+  final List<Category> allCategories;
+  List<Category> _filteredCategories;
+  String _searchString;
+
+  _SearchModel(this.allCategories) {
+    this._filteredCategories = allCategories;
+  }
+
+  getFilteredCategories() => _filteredCategories;
+  setFilteredCategories(List<Category> filteredCategories) =>
+      this._filteredCategories = filteredCategories;
+
+  getSearchString() => _searchString;
+  setSearchString(String searchString) => this._searchString = searchString;
+
+  void filter(String searchString) {
+    // debugPrint("filter" + searchString);
+    this._filteredCategories = this.allCategories;
+    this._filteredCategories = this._filteredCategories.where((category) {
+      return searchString.length == 0 ||
+          category.name.toLowerCase().contains(searchString.toLowerCase());
+    }).toList();
+    notifyListeners();
+  }
+}
 
 class CategoryIcon extends StatelessWidget {
   final String id;
@@ -63,7 +90,7 @@ class _ClientHomePageState extends State<ClientHomePage> {
           _ClientHomeHeader(
               /*  userBloc: this.userBloc */
               ),
-          _ClientHomeSearch()
+          _ClientHomeSearch(),
         ],
       ),
     );
@@ -395,34 +422,69 @@ class _ClientHomeSearch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(left: 20, right: 20, top: 100),
-      height: 60,
-      child: TextField(
-        style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),
-        decoration: InputDecoration(
-            hintText: "Procurar por atividade, categoria, etc",
-            hintMaxLines: 1,
-            hintStyle: TextStyle(
-              color: Colors.white,
-              fontFamily: "Montserrat",
-            ),
-            filled: true,
-            fillColor: colors["backgroundColor"],
-            prefixIcon: Padding(
-              padding: const EdgeInsets.only(left: 10, right: 5),
-              child: Icon(Icons.search, color: Colors.white),
-            ),
-            border: OutlineInputBorder(
-                borderSide: BorderSide(color: colors["primaryColor"]),
-                borderRadius: BorderRadius.all(Radius.circular(5))),
-            enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: colors["primaryColor"]),
-                borderRadius: BorderRadius.all(Radius.circular(5))),
-            focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: colors["primaryColor"]),
-                borderRadius: BorderRadius.all(Radius.circular(5)))),
-      ),
+    return Column(
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.only(left: 20, right: 20, top: 100),
+          height: 60,
+          child: TextField(
+            style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),
+            decoration: InputDecoration(
+                hintText: "Procurar por atividade, categoria, etc",
+                hintMaxLines: 1,
+                hintStyle: TextStyle(
+                  color: Colors.white,
+                  fontFamily: "Montserrat",
+                ),
+                filled: true,
+                fillColor: colors["backgroundColor"],
+                prefixIcon: Padding(
+                  padding: const EdgeInsets.only(left: 10, right: 5),
+                  child: Icon(Icons.search, color: Colors.white),
+                ),
+                border: OutlineInputBorder(
+                    borderSide: BorderSide(color: colors["primaryColor"]),
+                    borderRadius: BorderRadius.all(Radius.circular(5))),
+                enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colors["primaryColor"]),
+                    borderRadius: BorderRadius.all(Radius.circular(5))),
+                focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: colors["primaryColor"]),
+                    borderRadius: BorderRadius.all(Radius.circular(5)))),
+          ),
+        ),
+        _SearchSugestions()
+      ],
     );
+  }
+}
+
+class _SearchSugestions extends StatelessWidget {
+  const _SearchSugestions({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        margin: EdgeInsets.only(left: 20, right: 20, top: 20),
+        height: 120,
+        child: ListView(
+          children: <Widget>[
+            ListTile(
+              title: Text("A"),
+            ),
+            ListTile(
+              title: Text("A"),
+            ),
+            ListTile(
+              title: Text("A"),
+            )
+          ],
+        ),
+        decoration: BoxDecoration(
+            color: colors["backgroundColor"],
+            border: Border.all(color: Colors.black),
+            borderRadius: BorderRadius.circular(5)));
   }
 }
