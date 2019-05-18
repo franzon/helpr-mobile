@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/api/auth_api.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:provider/provider.dart';
 
@@ -8,6 +9,14 @@ class _AuthenticationScreenModel with ChangeNotifier {
   Tab _selectedTab = Tab.SignIn;
 
   final signInFormKey = GlobalKey<FormState>();
+  final signInEmailController = TextEditingController();
+  final signInPasswordController = TextEditingController();
+
+  final signUpFormKey = GlobalKey<FormState>();
+  final signUpNameController = TextEditingController();
+
+  final signUpEmailController = TextEditingController();
+  final signUpPasswordController = TextEditingController();
 
   Tab get selectedTab => this._selectedTab;
 
@@ -309,6 +318,11 @@ class AuthenticationSignInForm extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
+  void signIn(String email, String password) async {
+    final Map response = await AuthApi.signIn(email, password);
+    debugPrint(response.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     final RegExp emailRegex = new RegExp(
@@ -329,6 +343,9 @@ class AuthenticationSignInForm extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       TextFormField(
+                        controller:
+                            Provider.of<_AuthenticationScreenModel>(context)
+                                .signInEmailController,
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
                           if (value.isEmpty || !emailRegex.hasMatch(value)) {
@@ -362,6 +379,9 @@ class AuthenticationSignInForm extends StatelessWidget {
                                     BorderSide(color: colors["primaryColor"]))),
                       ),
                       TextFormField(
+                        controller:
+                            Provider.of<_AuthenticationScreenModel>(context)
+                                .signInPasswordController,
                         obscureText: true,
                         validator: (value) {
                           if (value.isEmpty) {
@@ -423,7 +443,16 @@ class AuthenticationSignInForm extends StatelessWidget {
                         .signInFormKey
                         .currentState
                         .validate()) {
-                      debugPrint("signIn");
+                      final String email =
+                          Provider.of<_AuthenticationScreenModel>(context)
+                              .signInEmailController
+                              .text;
+                      final String password =
+                          Provider.of<_AuthenticationScreenModel>(context)
+                              .signInPasswordController
+                              .text;
+
+                      this.signIn(email, password);
                     }
                   },
                   child: Center(

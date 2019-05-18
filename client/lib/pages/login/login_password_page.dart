@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
-import 'package:mobile/api/login_api.dart';
+import 'package:mobile/api/auth_api.dart';
 import 'package:mobile/widgets/helpr_button.dart';
 import 'package:mobile/widgets/helpr_password_input.dart';
 

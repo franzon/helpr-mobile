@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
-import 'package:mobile/api/login_api.dart';
+import 'package:mobile/api/auth_api.dart';
 import 'package:mobile/pages/login/login.dart';
 import 'package:mobile/widgets/helpr_button.dart';
 import 'package:mobile/widgets/helpr_email_input.dart';
