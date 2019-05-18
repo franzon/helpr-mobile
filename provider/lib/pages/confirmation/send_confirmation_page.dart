@@ -35,25 +35,13 @@ class _SendEmailConfirmationPageState extends State<SendEmailConfirmationPage>
     );
   }
 
-  // void timerToSend() async {
-  //   while (_timeToResend != 0) {
-  //     await Future.delayed(Duration(seconds: 1), () {});
-  //     setState(() {
-  //       _timeToResend -= 1;
-  //     });
-  //   }
-  //   setState(() {
-  //     _timeToResend = 5;
-  //   });
-  // }
-
   void continueButtonPressed() async {
     setState(() {
       isLoading = true;
     });
     var user = await UserApi.sendCode(email);
 
-    if (user == null) {
+    if (user != null) {
       setState(() {
         isLoading = false;
       });
@@ -62,7 +50,7 @@ class _SendEmailConfirmationPageState extends State<SendEmailConfirmationPage>
         context,
         PageTransition(
           type: PageTransitionType.rightToLeft,
-          child: ConfirmCodePage(),
+          child: ConfirmCodePage(email: email),
         ),
       );
     }

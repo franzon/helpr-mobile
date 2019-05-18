@@ -6,3 +6,6 @@ final colors = {
   "primaryColor": Color(0xFFF57474),
   "accentColor": Colors.white
 };
+final localFiles = {
+  "jsonProviderName": 'provider_infos', 
+};

@@ -7,14 +7,25 @@ import 'package:mobile/widgets/helpr_button.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:mobile/api/email_confirmation.dart';
 import 'package:mobile/pages/confirmation/name.dart';
+import 'package:mobile/utils/files.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class ConfirmCodePage extends StatefulWidget {
-  ConfirmCodePage({Key key}) : super(key: key);
+  final String email;
 
-  _ConfirmCodePageState createState() => _ConfirmCodePageState();
+  ConfirmCodePage({Key key, this.email}) : super(key: key);
+
+  _ConfirmCodePageState createState() => _ConfirmCodePageState(email);
 }
 
 class _ConfirmCodePageState extends State<ConfirmCodePage> {
+  final String email;
+
+  _ConfirmCodePageState(this.email);
+
+  JSONStorage storage;
+
   final myController = TextEditingController();
 
   int _totalTime = 120;
@@ -23,7 +34,6 @@ class _ConfirmCodePageState extends State<ConfirmCodePage> {
   bool _allowResend = false;
 
   bool isLoading = false;
-
 
   Color inputFill = colors['accentColor'];
 
@@ -89,6 +99,12 @@ class _ConfirmCodePageState extends State<ConfirmCodePage> {
     var response = await UserApi.sendCode(code);
 
     if (response != null) {
+
+      getApplicationDocumentsDirectory().then((Directory directory) {
+        this.storage = JSONStorage(localFiles["jsonProviderName"], directory.path);
+        this.storage.appendMap({email: this.email});
+      });
+
       setState(() {
         isLoading = false;
       });

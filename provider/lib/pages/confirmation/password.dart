@@ -1,46 +1,28 @@
-import 'dart:io';
-
-import 'package:mobile/utils/constants.dart';
 import 'package:flutter/material.dart';
-// import 'package:mobile/pages/confirmation/password.dart';
+import 'package:mobile/widgets/helpr_back_button.dart';
 import 'package:mobile/widgets/helpr_button.dart';
-import 'package:mobile/widgets/helpr_email_input.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:mobile/utils/files.dart';
-import 'package:mobile/pages/confirmation/password.dart';
 
-
-class NamePage extends StatefulWidget {
-  const NamePage({Key key}) : super(key: key);
+class PasswordPage extends StatefulWidget {
+  const PasswordPage({Key key}) : super(key: key);
 
   @override
-  _NamePageState createState() => _NamePageState();
+  _PasswordPageState createState() => _PasswordPageState();
 }
 
-class _NamePageState extends State<NamePage> {
-  String nome = "";
-
-  JSONStorage storage;
+class _PasswordPageState extends State<PasswordPage> {
+  String password = "";
 
   bool isLoading = false;
   bool isDisabled = true;
 
   void continueButtonPressed() async {
-    Directory dir = await getApplicationDocumentsDirectory();
-    this.storage = JSONStorage(localFiles['jsonProviderName'], dir.path);
-    this.storage.appendMap({"name": this.nome});
-
-    Navigator.push(
-        context,
-        PageTransition(
-            type: PageTransitionType.rightToLeft, child: PasswordPage()));
+    // todo: chamar api
   }
 
-  void nameChanged(String nome) async {
-    this.nome = nome;
-    if (nome.length > 0) {
+  void passwordChanged(String password) async {
+    this.password = password;
+    if (password.length > 0) {
       setState(() {
         isLoading = false;
         isDisabled = false;
@@ -93,20 +75,14 @@ class _NamePageState extends State<NamePage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
+                    HelprBackButton(
+                      text: "Voltar",
+                      onPressed: null,
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(left: 40.0, bottom: 10.0),
                       child: Text(
-                        "Pronto...",
-                        style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 40.0),
-                      child: Text(
-                        "Por favor, digite seu primeiro nome.",
+                        "Escolha uma senha forte.",
                         style: TextStyle(
                             color: Theme.of(context).accentColor,
                             fontSize: 22,
@@ -126,10 +102,9 @@ class _NamePageState extends State<NamePage> {
                         child: Container(
                             alignment: Alignment.centerLeft,
                             child: Icon(
-                              Icons.person,
-                              color: isDisabled
-                                  ? Colors.white
-                                  : Colors.lightBlue,
+                              Icons.lock,
+                              color:
+                                  isDisabled ? Colors.white : Colors.lightBlue,
                             ))),
 
                     // child: AnimatedBuilder(
@@ -147,7 +122,8 @@ class _NamePageState extends State<NamePage> {
                       child: Padding(
                         padding: const EdgeInsets.only(right: 30),
                         child: TextField(
-                          onChanged: (text) => this.nameChanged(text),
+                          obscureText: true,
+                          onChanged: (text) => this.passwordChanged(text),
                           decoration: InputDecoration(
                               filled: true,
                               fillColor: Theme.of(context).accentColor,
@@ -161,7 +137,7 @@ class _NamePageState extends State<NamePage> {
                                       BorderSide(color: Colors.transparent),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10))),
-                              hintText: "Digite seu nome"),
+                              hintText: "Digite uma senha"),
                         ),
                       ),
                     ),
