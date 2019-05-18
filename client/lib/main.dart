@@ -3,14 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mobile/blocs/categories_bloc.dart';
 import 'package:mobile/blocs/user_bloc.dart';
 import 'package:mobile/pages/authentication/authentication_page.dart';
-import 'package:mobile/pages/home/client_home_page.dart';
-import 'package:mobile/pages/login/login_page.dart';
-import 'package:mobile/pages/splash_screen.dart';
-// import 'package:bloc/bloc.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-
-// import 'package:mobile/pages/login/login_page.dart';
-import 'package:mobile/utils/constants.dart';
+import 'package:mobile/pages/splash.dart';
+import 'package:splashscreen/splashscreen.dart';
 
 main() {
   // Stetho.initialize();
@@ -42,7 +36,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: AuthenticationPage(),
+      home: Splash(),
       debugShowCheckedModeBanner: false,
     );
   }

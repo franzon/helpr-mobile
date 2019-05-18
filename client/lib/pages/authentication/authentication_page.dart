@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_keychain/flutter_keychain.dart';
-import 'package:mobile/api/auth_api.dart';
-import 'package:mobile/pages/home/client_home_page.dart';
+import 'package:mobile/pages/authentication/authentication_signin.dart';
+import 'package:mobile/pages/authentication/authentication_signup.dart';
 import 'package:mobile/utils/constants.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
 enum Tab { SignIn, SignUp }
 
-class _AuthenticationScreenModel with ChangeNotifier {
+class AuthenticationScreenModel with ChangeNotifier {
   Tab _selectedTab = Tab.SignIn;
 
   final signInFormKey = GlobalKey<FormState>();
@@ -41,7 +39,7 @@ class AuthenticationTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Provider.of<_AuthenticationScreenModel>(context).selectTab(this.tab);
+        Provider.of<AuthenticationScreenModel>(context).selectTab(this.tab);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -66,8 +64,8 @@ class AuthenticationTab extends StatelessWidget {
 class AuthenticationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<_AuthenticationScreenModel>(
-        builder: (_) => _AuthenticationScreenModel(),
+    return ChangeNotifierProvider<AuthenticationScreenModel>(
+        builder: (_) => AuthenticationScreenModel(),
         child: _AuthenticationPage());
   }
 }
@@ -137,351 +135,10 @@ class AuthenticationForm extends StatelessWidget {
       decoration: BoxDecoration(
           color: colors["backgroundColor2"],
           borderRadius: BorderRadius.circular(5)),
-      child: Provider.of<_AuthenticationScreenModel>(context).selectedTab ==
+      child: Provider.of<AuthenticationScreenModel>(context).selectedTab ==
               Tab.SignIn
           ? AuthenticationSignInForm()
           : AuthenticationSignUpForm(),
-    );
-  }
-}
-
-class AuthenticationSignUpForm extends StatelessWidget {
-  const AuthenticationSignUpForm({
-    Key key,
-  }) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    final RegExp emailRegex = new RegExp(
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$');
-
-    return Stack(
-      children: [
-        Column(
-          children: <Widget>[
-            Expanded(
-              flex: 3,
-              child: Form(
-                key: Provider.of<_AuthenticationScreenModel>(context)
-                    .signInFormKey,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 30.0, right: 30, bottom: 30.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      TextFormField(
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return "Digite um nome";
-                          }
-                        },
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: "Montserrat",
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12),
-                        decoration: InputDecoration(
-                            hintText: "Nome",
-                            hintStyle: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Montserrat",
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12),
-                            prefixIcon: Icon(
-                              Icons.people,
-                              color: colors["primaryColor"],
-                            ),
-                            border: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"])),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"])),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"]))),
-                      ),
-                      TextFormField(
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value.isEmpty || !emailRegex.hasMatch(value)) {
-                            return "Email inválido";
-                          }
-                        },
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: "Montserrat",
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12),
-                        decoration: InputDecoration(
-                            hintText: "Email",
-                            hintStyle: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Montserrat",
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12),
-                            prefixIcon: Icon(
-                              Icons.email,
-                              color: colors["primaryColor"],
-                            ),
-                            border: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"])),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"])),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"]))),
-                      ),
-                      TextFormField(
-                        obscureText: true,
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return "Digite a senha";
-                          }
-                        },
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: "Montserrat",
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12),
-                        decoration: InputDecoration(
-                            hintText: "Senha",
-                            hintStyle: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Montserrat",
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12),
-                            prefixIcon: Icon(
-                              Icons.lock,
-                              color: colors["primaryColor"],
-                            ),
-                            border: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"])),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"])),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"]))),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Container(
-                color: colors["backgroundColor"],
-              ),
-            )
-          ],
-        ),
-        Align(
-          alignment: Alignment.center,
-          child: Container(
-              margin: EdgeInsets.only(left: 80, right: 80, top: 200),
-              height: 60,
-              decoration: BoxDecoration(
-                  color: colors["primaryColor"],
-                  borderRadius: BorderRadius.circular(5)),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    if (Provider.of<_AuthenticationScreenModel>(context)
-                        .signInFormKey
-                        .currentState
-                        .validate()) {
-                      debugPrint("signIn");
-                    }
-                  },
-                  child: Center(
-                      child: Text(
-                    "Criar conta",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: "Montserrat",
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  )),
-                ),
-              )),
-        )
-      ],
-    );
-  }
-}
-
-class AuthenticationSignInForm extends StatelessWidget {
-  const AuthenticationSignInForm({
-    Key key,
-  }) : super(key: key);
-
-  void signIn(BuildContext context, String email, String password) async {
-    final Map response = await AuthApi.signIn(email, password);
-    if (response != null) {
-      FlutterKeychain.put(key: "token", value: response["data"]["token"]);
-
-      Navigator.pushReplacement(
-          context,
-          PageTransition(
-              type: PageTransitionType.leftToRight,
-              alignment: Alignment.bottomCenter,
-              child: ClientHomePage()));
-    } else {
-      // todo: show alert
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final RegExp emailRegex = new RegExp(
-        r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$');
-
-    return Stack(
-      children: [
-        Column(
-          children: <Widget>[
-            Expanded(
-              flex: 3,
-              child: Form(
-                key: Provider.of<_AuthenticationScreenModel>(context)
-                    .signInFormKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(30.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      TextFormField(
-                        controller:
-                            Provider.of<_AuthenticationScreenModel>(context)
-                                .signInEmailController,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value.isEmpty || !emailRegex.hasMatch(value)) {
-                            return "Email inválido";
-                          }
-                        },
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: "Montserrat",
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12),
-                        decoration: InputDecoration(
-                            hintText: "Email",
-                            hintStyle: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Montserrat",
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12),
-                            prefixIcon: Icon(
-                              Icons.email,
-                              color: colors["primaryColor"],
-                            ),
-                            border: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"])),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"])),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"]))),
-                      ),
-                      TextFormField(
-                        controller:
-                            Provider.of<_AuthenticationScreenModel>(context)
-                                .signInPasswordController,
-                        obscureText: true,
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return "Digite a senha";
-                          }
-                        },
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: "Montserrat",
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12),
-                        decoration: InputDecoration(
-                            hintText: "Senha",
-                            hintStyle: TextStyle(
-                                color: Colors.white,
-                                fontFamily: "Montserrat",
-                                fontWeight: FontWeight.bold,
-                                fontSize: 12),
-                            prefixIcon: Icon(
-                              Icons.lock,
-                              color: colors["primaryColor"],
-                            ),
-                            border: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"])),
-                            enabledBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"])),
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: colors["primaryColor"]))),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              flex: 1,
-              child: Container(
-                color: colors["backgroundColor"],
-              ),
-            )
-          ],
-        ),
-        Align(
-          alignment: Alignment.center,
-          child: Container(
-              margin: EdgeInsets.only(left: 80, right: 80, top: 200),
-              height: 60,
-              decoration: BoxDecoration(
-                  color: colors["primaryColor"],
-                  borderRadius: BorderRadius.circular(5)),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    if (Provider.of<_AuthenticationScreenModel>(context)
-                        .signInFormKey
-                        .currentState
-                        .validate()) {
-                      final String email =
-                          Provider.of<_AuthenticationScreenModel>(context)
-                              .signInEmailController
-                              .text;
-                      final String password =
-                          Provider.of<_AuthenticationScreenModel>(context)
-                              .signInPasswordController
-                              .text;
-
-                      this.signIn(context, email, password);
-                    }
-                  },
-                  child: Center(
-                      child: Text(
-                    "Entrar",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: "Montserrat",
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16),
-                  )),
-                ),
-              )),
-        )
-      ],
     );
   }
 }
@@ -505,14 +162,14 @@ class AuthenticationTabs extends StatelessWidget {
             tab: Tab.SignIn,
             text: "Entrar",
             selected:
-                Provider.of<_AuthenticationScreenModel>(context).selectedTab ==
+                Provider.of<AuthenticationScreenModel>(context).selectedTab ==
                     Tab.SignIn,
           ),
           AuthenticationTab(
             tab: Tab.SignUp,
             text: "Nova conta",
             selected:
-                Provider.of<_AuthenticationScreenModel>(context).selectedTab ==
+                Provider.of<AuthenticationScreenModel>(context).selectedTab ==
                     Tab.SignUp,
           ),
         ],

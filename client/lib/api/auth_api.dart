@@ -23,8 +23,6 @@ class AuthApi {
     return await http
         .post("$apiUrl/authentication/login/user",
             body: {"email": email, "password": password})
-        .then(
-            (response) => response.statusCode == 200 ? response : throw Error())
         .then((response) => json.decode(response.body))
         .catchError((onError) => null);
   }
@@ -33,8 +31,6 @@ class AuthApi {
     return await http
         .post("$apiUrl/user/createUser",
             body: {"name": name, "email": email, "password": password})
-        .then(
-            (response) => response.statusCode == 200 ? response : throw Error())
         .then((response) => json.decode(response.body))
         .catchError((onError) => null);
   }
