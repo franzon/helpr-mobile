@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 import 'package:mobile/utils/constants.dart';
 
@@ -21,7 +22,7 @@ class AuthApi {
   static Future<Map> signIn(String email, String password) async {
     return await http
         .post("$apiUrl/authentication/login/user",
-            body: {email: email, password: password})
+            body: {"email": email, "password": password})
         .then(
             (response) => response.statusCode == 200 ? response : throw Error())
         .then((response) => json.decode(response.body))
@@ -31,7 +32,7 @@ class AuthApi {
   static Future<Map> signUp(String name, String email, String password) async {
     return await http
         .post("$apiUrl/user/createUser",
-            body: {name: name, email: email, password: password})
+            body: {"name": name, "email": email, "password": password})
         .then(
             (response) => response.statusCode == 200 ? response : throw Error())
         .then((response) => json.decode(response.body))

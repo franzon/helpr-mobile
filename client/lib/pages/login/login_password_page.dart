@@ -45,7 +45,7 @@ class _LoginPasswordPageState extends State<LoginPasswordPage>
 
   void continueButtonPressed() async {
     try {
-      final result = await UserApi.signIn(email, password);
+      final result = await AuthApi.signIn(email, password);
       FlutterKeychain.put(key: "token", value: result["token"]);
     } catch (e) {}
   }

@@ -64,7 +64,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     setState(() {
       isLoading = true;
     });
-    final user = await UserApi.getUser(email);
+    final user = await AuthApi.getUser(email);
     setState(() {
       isLoading = false;
     });

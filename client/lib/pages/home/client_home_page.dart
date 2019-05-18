@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
-import 'package:mobile/api/categories_api.dart';
 import 'package:mobile/blocs/categories_bloc.dart';
 import 'package:mobile/blocs/user_bloc.dart';
 import 'package:mobile/models/Category.dart';
@@ -10,7 +8,6 @@ import 'package:mobile/pages/home/client_home_all_categories.dart';
 import 'package:mobile/pages/home/client_home_drawer.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:keyboard_visibility/keyboard_visibility.dart';
 
 class _SearchModel with ChangeNotifier {
   final List<Category> allCategories;
@@ -453,7 +450,7 @@ class _ClientHomeSearch extends StatelessWidget {
                     borderRadius: BorderRadius.all(Radius.circular(5)))),
           ),
         ),
-        _SearchSugestions()
+        // _SearchSugestions()
       ],
     );
   }

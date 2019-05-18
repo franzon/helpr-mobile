@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:mobile/api/auth_api.dart';
+import 'package:mobile/pages/home/client_home_page.dart';
 import 'package:mobile/utils/constants.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 
 enum Tab { SignIn, SignUp }
@@ -318,9 +321,20 @@ class AuthenticationSignInForm extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
-  void signIn(String email, String password) async {
+  void signIn(BuildContext context, String email, String password) async {
     final Map response = await AuthApi.signIn(email, password);
-    debugPrint(response.toString());
+    if (response != null) {
+      FlutterKeychain.put(key: "token", value: response["data"]["token"]);
+
+      Navigator.pushReplacement(
+          context,
+          PageTransition(
+              type: PageTransitionType.leftToRight,
+              alignment: Alignment.bottomCenter,
+              child: ClientHomePage()));
+    } else {
+      // todo: show alert
+    }
   }
 
   @override
@@ -452,7 +466,7 @@ class AuthenticationSignInForm extends StatelessWidget {
                               .signInPasswordController
                               .text;
 
-                      this.signIn(email, password);
+                      this.signIn(context, email, password);
                     }
                   },
                   child: Center(
