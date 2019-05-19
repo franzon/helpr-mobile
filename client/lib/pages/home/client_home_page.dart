@@ -6,6 +6,7 @@ import 'package:mobile/blocs/user_bloc.dart';
 import 'package:mobile/models/Category.dart';
 import 'package:mobile/pages/home/client_home_all_categories.dart';
 import 'package:mobile/pages/home/client_home_drawer.dart';
+import 'package:mobile/pages/home/provider_results/provider_results_page.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -44,18 +45,29 @@ class CategoryIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Image.asset("assets/icons/" + this.id + ".png"),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Text(
-            this.name,
-            style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),
-          ),
-        )
-      ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            PageTransition(
+                type: PageTransitionType.scale,
+                duration: Duration(milliseconds: 500),
+                alignment: Alignment.center,
+                child: ProviderResultsPage()));
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Image.asset("assets/icons/" + this.id + ".png"),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              this.name,
+              style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
@@ -255,26 +267,26 @@ class _ClientHomeGrid extends StatelessWidget {
                         }
                       },
                     )),
-                Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          PageTransition(
-                              type: PageTransitionType.scale,
-                              alignment: Alignment.bottomCenter,
-                              child: ClientHomeAllCategories()));
-                    },
-                    child: Text(
-                      "Mais",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: "Montserrat",
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.all(15),
+                //   child: GestureDetector(
+                //     onTap: () {
+                //       Navigator.push(
+                //           context,
+                //           PageTransition(
+                //               type: PageTransitionType.scale,
+                //               alignment: Alignment.bottomCenter,
+                //               child: ClientHomeAllCategories()));
+                //     },
+                //     child: Text(
+                //       "Mais",
+                //       style: TextStyle(
+                //           color: Colors.white,
+                //           fontFamily: "Montserrat",
+                //           fontWeight: FontWeight.bold),
+                //     ),
+                //   ),
+                // ),
               ],
             )
           ],

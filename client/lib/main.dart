@@ -37,6 +37,12 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Splash(),
+      theme: ThemeData(
+          fontFamily: "Montserrat",
+          textTheme: TextTheme(
+            body1: TextStyle(color: Colors.white),
+          ),
+          iconTheme: IconThemeData(color: Colors.white)),
       debugShowCheckedModeBanner: false,
     );
   }
