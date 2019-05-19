@@ -12,17 +12,28 @@ class AuthenticationSignInForm extends StatelessWidget {
     Key key,
   }) : super(key: key);
 
+  Future<void> showErrorSnack(BuildContext context, String error) {
+    Scaffold.of(context).showSnackBar(new SnackBar(
+      backgroundColor: Colors.red,
+      content: Text(error),
+    ));
+  }
+
   void signIn(BuildContext context, String email, String password) async {
     final Map response = await AuthApi.signIn(email, password);
     if (response != null) {
-      FlutterKeychain.put(key: "token", value: response["data"]["token"]);
-
-      Navigator.pushReplacement(
-          context,
-          PageTransition(
-              type: PageTransitionType.leftToRight,
-              alignment: Alignment.bottomCenter,
-              child: ClientHomePage()));
+      debugPrint(response.toString());
+      // FlutterKeychain.put(key: "token", value: response["data"]["token"]);
+      if (response["message"] == "success") {
+        Navigator.pushReplacement(
+            context,
+            PageTransition(
+                type: PageTransitionType.leftToRight,
+                alignment: Alignment.bottomCenter,
+                child: ClientHomePage()));
+      } else if (response["message"] == "invalid password") {
+        this.showErrorSnack(context, "Senha incorreta");
+      }
     } else {
       // todo: show alert
     }
