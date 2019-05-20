@@ -25,9 +25,6 @@ class ActivityApi {
     };
 
     final response = await http.post("$apiUrl/provider/category",
-    headers: {
-      "Accept": "application/json"
-    },
     body: body);
 
     print(response.statusCode);

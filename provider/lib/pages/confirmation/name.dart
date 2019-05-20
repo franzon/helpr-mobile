@@ -4,13 +4,11 @@ import 'package:mobile/utils/constants.dart';
 import 'package:flutter/material.dart';
 // import 'package:mobile/pages/confirmation/password.dart';
 import 'package:mobile/widgets/helpr_button.dart';
-import 'package:mobile/widgets/helpr_email_input.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:mobile/utils/files.dart';
 import 'package:mobile/pages/confirmation/password.dart';
-
+import 'package:mobile/pages/register/basics.dart';
 
 class NamePage extends StatefulWidget {
   const NamePage({Key key}) : super(key: key);
@@ -35,7 +33,7 @@ class _NamePageState extends State<NamePage> {
     Navigator.push(
         context,
         PageTransition(
-            type: PageTransitionType.rightToLeft, child: PasswordPage()));
+            type: PageTransitionType.rightToLeft, child: BasicInformationPage()));
   }
 
   void nameChanged(String nome) async {

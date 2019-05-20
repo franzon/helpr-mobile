@@ -80,15 +80,18 @@ class _AddressPageState extends State<AddressPage> {
     }); 
 
 
-    await registration(this.storage.getContent());
+    var response = await registration(this.storage.getContent());
 
-    Navigator.push(
-      context,
-      PageTransition(
-        type: PageTransitionType.rightToLeft,
-        child: HomePage(),
-      ),
-    );
+      print(response);
+    if (response != null) {
+      Navigator.push(
+        context,
+        PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: HomePage(),
+        ),
+      );
+    }
   }
 
   @override

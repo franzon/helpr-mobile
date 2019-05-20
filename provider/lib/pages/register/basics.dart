@@ -9,6 +9,7 @@ import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:mobile/pages/register/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:mobile/pages/register/endereco.dart';
 
 class BasicInformationPage extends StatefulWidget {
   BasicInformationPage();
@@ -74,7 +75,7 @@ class _BasicInformationPageState extends State<BasicInformationPage>
         context,
         PageTransition(
           type: PageTransitionType.rightToLeft,
-          child: ServicesPage(),
+          child: AddressPage(),
         ),
       );
     }
@@ -174,51 +175,6 @@ class _BasicInformationPageState extends State<BasicInformationPage>
                                 ),
                                 hintText: "CPF (Somente números)",
                               ),
-                            ),
-                          ),
-                          TextField(
-                            obscureText: true,
-                            textInputAction: TextInputAction.next,
-                            controller: phoneController,
-                            onChanged: (phone) {
-                              if (phone.length == 16) {
-                                setState(() {
-                                  phoneValidate = true;
-                                });
-                              } else {
-                                setState(() {
-                                  phoneValidate = false;
-                                });
-                              }
-                            },
-                            focusNode: passFocus,
-                            onSubmitted: (text) {
-                              _fieldFocusChange(
-                                  context, phoneFocus, passFocus);
-                            },
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.lock),
-                              helperText: "Informe uma senha segura",
-                              filled: true,
-                              fillColor: colors['accentColor'],
-                              errorText: passValidate
-                                  ? null
-                                  : "A senha deve conter pelo menos 8 dígitos",
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.transparent),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                              ),
-                              border: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.transparent),
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(10),
-                                ),
-                              ),
-                              hintText: "Senha (Mínimo 8 caracteres)",
                             ),
                           ),
                           TextField(
@@ -326,8 +282,7 @@ class _BasicInformationPageState extends State<BasicInformationPage>
                             text: "CONFIRMAR INFORMAÇÕES",
                             isDisabled: !cpfValidate ||
                                 !passValidate ||
-                                !confirmValidate ||
-                                !phoneValidate,
+                                !confirmValidate,
                             isLoading: isLoading,
                             callback: submitForm,
                           ),

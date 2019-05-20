@@ -4,6 +4,8 @@ import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
 import 'package:mobile/api/login_api.dart';
 import 'package:mobile/widgets/helpr_button.dart';
 import 'package:mobile/widgets/helpr_password_input.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:mobile/pages/home.dart';
 
 class LoginPasswordPage extends StatefulWidget {
   final String email;
@@ -46,7 +48,17 @@ class _LoginPasswordPageState extends State<LoginPasswordPage>
   void continueButtonPressed() async {
     try {
       final result = await UserApi.signIn(email, password);
-      FlutterKeychain.put(key: "token", value: result["token"]);
+      if (result != null) {
+        FlutterKeychain.put(key: "token", value: result["token"]);
+        print(result);
+        Navigator.push(
+          context,
+          PageTransition(
+            type: PageTransitionType.leftToRight,
+            child: HomePage(),
+          ),
+        );
+      }
     } catch (e) {}
   }
 
@@ -192,14 +204,16 @@ class _LoginPasswordPageState extends State<LoginPasswordPage>
                   child: Row(
                     children: <Widget>[
                       Expanded(
-                          child: Padding(
-                        padding: EdgeInsets.only(left: 40, right: 40),
-                        child: HelprButton(
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 40, right: 40),
+                          child: HelprButton(
                             text: "CONTINUAR",
                             isLoading: isLoading,
                             isDisabled: isDisabled,
-                            callback: continueButtonPressed),
-                      )),
+                            callback: continueButtonPressed,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
