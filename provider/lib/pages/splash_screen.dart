@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_keychain/flutter_keychain.dart';
+import 'package:mobile/pages/home.dart';
 import 'dart:async';
 import 'package:splashscreen/splashscreen.dart';
 import 'package:mobile/utils/constants.dart';
-import 'package:mobile/pages/login/login_page.dart';
 
 class Splash extends StatefulWidget {
   @override
@@ -38,7 +38,7 @@ class _SplashState extends State<Splash> {
   Widget build(BuildContext context) {
     return SplashScreen(
         seconds: 3,
-        navigateAfterSeconds: _token == 'Unknown' ? LoginPage() : null,
+        navigateAfterSeconds: _token == 'Unknown' ? HomePage() : null,
         title: Text(
           'helpr',
           style: TextStyle(

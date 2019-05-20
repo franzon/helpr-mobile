@@ -23,6 +23,7 @@ dependencies:
   flutter_masked_text: ^0.8.0
   cpf_cnpj_validator: ^1.0.5
   path_provider: ^1.1.0
+  web_socket_channel:
 
 dev_dependencies:
   flutter_test:
