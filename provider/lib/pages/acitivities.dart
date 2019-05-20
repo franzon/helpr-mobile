@@ -18,12 +18,6 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   List<Map> categories;
 
   final List<Map> entries = <Map>[
-    {
-			"category": "N",
-			"title": "Azulej",
-			"description": "Arrumo a",
-			"price": "12345"
-    }
   ];
 
 
@@ -86,12 +80,8 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                             child: Text(
                               "Atividades",
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 30),
+                                  TextStyle(color: Colors.white, fontSize: 25),
                             ),
-                          ),
-                          Text(
-                            "As mudanças serão persistidas somente após a confirmação",
-                            style: TextStyle(color: Colors.white54),
                           ),
                         ],
                       ),
