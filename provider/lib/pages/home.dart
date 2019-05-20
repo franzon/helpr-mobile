@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import 'package:mobile/utils/constants.dart';
-
+import 'package:page_transition/page_transition.dart';
+import 'package:mobile/pages/acitivities.dart';
 import '../utils/constants.dart';
 
 class HomePage extends StatefulWidget {
@@ -106,9 +107,14 @@ class _HomePageState extends State<HomePage> {
           Spacer(),
           Column(children: <Widget>[
             IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, PageTransition(
+                    type: PageTransitionType.scale,
+                    child: ActivitiesPage(),
+                  ));
+                },
                 icon: Icon(Icons.settings, color: Colors.white)),
-            Text("Configs",
+            Text("Atividades",
                 style: TextStyle(color: Colors.white, fontFamily: "Montserrat"))
           ]),
           // IconButton(icon: Icon()),
