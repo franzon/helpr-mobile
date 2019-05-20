@@ -2,6 +2,12 @@ import "package:flutter/material.dart";
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:mobile/widgets/helpr_button.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:mobile/api/category.dart';
+import 'package:mobile/api/activities.dart';
+import 'package:mobile/utils/files.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ActivitiesPage extends StatefulWidget {
   ActivitiesPage({Key key}) : super(key: key);
@@ -15,36 +21,45 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     {"_id": "asdasdasdasdaAasdasd", "title": "Enfermeira"},
   ];
 
-  final List<Map> entries = <Map>[
-    {
-      "title": "Pedreiasdasdasdasdasdasdro",
-      "description": "asdasdasdasdqqweqw",
-      "price": "1400,91"
-    },
-  ];
-  final List<int> colorCodes = <int>[600, 500, 100];
+  final List<Map> entries = <Map>[];
 
-  TextEditingController titleController = TextEditingController(text: "");
-  TextEditingController descController = TextEditingController(text: "");
-  MoneyMaskedTextController priceController =
-      MoneyMaskedTextController(decimalSeparator: '.', thousandSeparator: ',');
-  String category;
 
-  FocusNode titleFocus = FocusNode();
-  FocusNode descFocus = FocusNode();
-  FocusNode priceFocus = FocusNode();
+  JSONStorage storage;
+
+  bool isLoading = false;
 
   @override
   void initState() {
+
+    CategoryApi.getCategory().then((categories) {
+      setState(() {
+        categories = categories;
+      });
+    });
     super.initState();
   }
 
   @override
   void dispose() {
-    titleController.dispose();
-    descController.dispose();
-    priceController.dispose();
     super.dispose();
+  }
+
+  void submitActivities () async {
+    setState(() {
+      isLoading = true;
+    });
+    Directory dir = await getApplicationDocumentsDirectory();
+    storage = JSONStorage(localFiles["jsonProviderName"], dir.path);
+    storage.appendMap({"email": "otavio@ogoes.dev"});
+    String email = storage.getContent()["email"];
+
+    await ActivityApi.sendActivities(email, entries);
+
+    setState(() {
+      isLoading = false;
+    });
+
+    Navigator.pop(context, null);
   }
 
   @override
@@ -91,92 +106,88 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                       borderRadius: BorderRadius.circular(8.0),
                     ),
                     child: Container(
-                      child: ListView.separated(
-                        padding: EdgeInsets.all(10.0),
-                        itemCount: entries.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Container(
-                            height: 80,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: RaisedButton(
-                              color: colors["accentColor"],
-                              shape: RoundedRectangleBorder(
+                      child: Center(
+                        child: entries.length == 0? Text("Sem atividades"): ListView.separated(
+                          padding: EdgeInsets.all(10.0),
+                          itemCount: entries.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Container(
+                              height: 80,
+                              decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              onPressed: () {
-                                print("chupa meu pito");
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Container(
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.grey[200],
-                                      ),
-                                      child: Icon(
-                                        Icons.build,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 5,
-                                    child: Container(
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.grey[200],
-                                      ),
-                                      margin: EdgeInsets.only(left: 14),
+                              child: RaisedButton(
+                                color: colors["accentColor"],
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                onPressed: () {
+                                  print("view activity");
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Expanded(
                                       child: Container(
-                                        child: Row(
-                                          children: <Widget>[
-                                            Expanded(
-                                              flex: 3,
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 16.0),
-                                                child: Text(
-                                                  "${entries[index]["title"]}",
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              child: Text(
-                                                  "R\$${entries[index]["price"]} ",
-                                                  style: TextStyle(
-                                                    fontSize: 15,
-                                                    fontWeight: FontWeight.w900,
-                                                  )),
-                                            ),
-                                          ],
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: Colors.grey[200],
+                                        ),
+                                        child: Icon(
+                                          Icons.build,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  index != (entries.length - 1)
-                                      ? Container(
-                                          color: Colors.black,
-                                          child: Icon(Icons.add),
-                                        )
-                                      : Container()
-                                ],
+                                    Expanded(
+                                      flex: 5,
+                                      child: Container(
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(10),
+                                          color: Colors.grey[200],
+                                        ),
+                                        margin: EdgeInsets.only(left: 14),
+                                        child: Container(
+                                          child: Row(
+                                            children: <Widget>[
+                                              Expanded(
+                                                flex: 3,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.only(
+                                                      left: 16.0),
+                                                  child: Text(
+                                                    "${entries[index]["title"]}",
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      fontWeight: FontWeight.w500,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                    "R\$${entries[index]["price"]} ",
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      fontWeight: FontWeight.w900,
+                                                    )),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                        separatorBuilder: (BuildContext context, int index) =>
-                            Divider(
-                              height: 7,
-                            ),
+                            );
+                          },
+                          separatorBuilder: (BuildContext context, int index) =>
+                              Divider(
+                                height: 7,
+                              ),
+                        ),
                       ),
                     ),
                   ),
@@ -213,9 +224,11 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                           flex: 11,
                           child: HelprButton(
                             text: "SALVAR ATIVIDADES",
-                            isDisabled: false,
-                            isLoading: false,
-                            callback: () {},
+                            isDisabled: entries.length == 0,
+                            isLoading: isLoading,
+                            callback: () {
+                              submitActivities();
+                            },
                           ),
                         ),
                       ],
@@ -230,7 +243,29 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     );
   }
 
+  void _createActivity(
+      String title, String description, String price, String category) {
+    setState(() {
+      entries.add({
+        "title": title,
+        "description": description,
+        "price": price,
+        "category": category,
+      });
+    });
+  }
+
   Future buildShowDialog(BuildContext context) {
+    TextEditingController titleController = TextEditingController(text: "");
+    TextEditingController descController = TextEditingController(text: "");
+    MoneyMaskedTextController priceController = MoneyMaskedTextController(
+        decimalSeparator: '.', thousandSeparator: ',');
+    String category;
+
+    FocusNode titleFocus = FocusNode();
+    FocusNode descFocus = FocusNode();
+    FocusNode priceFocus = FocusNode();
+
     return showDialog(
       context: context,
       barrierDismissible: false,
@@ -241,12 +276,13 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
             borderRadius: BorderRadius.circular(15.0),
           ),
           child: Container(
-            height: 500.0,
+            height: 400.0,
             width: 400.0,
             padding: EdgeInsets.symmetric(vertical: 40, horizontal: 10),
             child: Column(
               children: <Widget>[
                 Expanded(
+                  flex: 3,
                   child: TextField(
                     controller: titleController,
                     focusNode: titleFocus,
@@ -278,6 +314,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                   ),
                 ),
                 Expanded(
+                  flex: 3,
                   child: TextField(
                     controller: descController,
                     focusNode: descFocus,
@@ -309,40 +346,49 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                   ),
                 ),
                 Expanded(
+                  flex: 3,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Expanded(
-                        flex: 2,
+                        flex: 3,
                         child: Container(
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: colors["accentColor"],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: DropdownButton<Map>(
-                            isDense: true,
-                            items: this.categories.map((Map item) {
-                              return DropdownMenuItem<Map>(
-                                value: item,
-                                child: Text(item["title"]),
+                          padding: EdgeInsets.only(right: 5),
+                          height: 58,
+                          child: RaisedButton(
+                            color: Color(0xFDFFFFFF),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                child: SimpleDialog(
+                                  children: categories != null?
+                                    categories.map((cat) {
+                                    return SimpleDialogOption(
+                                      onPressed: () {
+                                        category = cat["title"];
+                                        Navigator.pop(context, cat);
+                                      },
+                                      child: Text(cat["title"]),
+                                    );
+                                  }).toList() : null,
+                                ),
                               );
-                            }).toList(),
-                            onChanged: (Map item) {
-                              setState(() {
-                                category = item["title"];
-                              });
                             },
-                            hint: Text("Informe a categoria"),
+                            child:
+                                Text(category == null ? "Categoria" : category),
                           ),
                         ),
                       ),
                       Expanded(
+                        flex: 2,
                         child: TextField(
                           controller: priceController,
                           focusNode: priceFocus,
-                          keyboardType: TextInputType.text,
+                          keyboardType: TextInputType.number,
                           textInputAction: TextInputAction.done,
                           onSubmitted: (text) {
                             // _fieldFocusChange(context, priceFocus, priceFocus);
@@ -374,6 +420,31 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                     ],
                   ),
                 ),
+                Expanded(
+                    flex: 1,
+                    child: Center(
+                      child: RaisedButton(
+                        color: colors["primaryColor"],
+                        disabledColor: Colors.grey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        onPressed: category != null &&
+                                titleController.text.length > 0 &&
+                                descController.text.length > 0 &&
+                                priceController.text.length >= 3
+                            ? () {
+                                _createActivity(
+                                    titleController.text,
+                                    descController.text,
+                                    priceController.text,
+                                    category);
+                                Navigator.pop(context, null);
+                              }
+                            : null,
+                        child: Icon(Icons.add),
+                      ),
+                    ))
               ],
             ),
           ),
