@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:mobile/widgets/helpr_button.dart';
-import 'dart:convert';
 import 'dart:io';
 import 'package:mobile/api/category.dart';
 import 'package:mobile/api/activities.dart';
@@ -16,12 +15,16 @@ class ActivitiesPage extends StatefulWidget {
 }
 
 class _ActivitiesPageState extends State<ActivitiesPage> {
-  final List<Map> categories = <Map>[
-    {"_id": "asdasdasdasdaArq354", "title": "Pedreiro"},
-    {"_id": "asdasdasdasdaAasdasd", "title": "Enfermeira"},
-  ];
+  List<Map> categories;
 
-  final List<Map> entries = <Map>[];
+  final List<Map> entries = <Map>[
+    {
+			"category": "N",
+			"title": "Azulej",
+			"description": "Arrumo a",
+			"price": "12345"
+    }
+  ];
 
 
   JSONStorage storage;
@@ -31,10 +34,11 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
   @override
   void initState() {
 
-    CategoryApi.getCategory().then((categories) {
+    CategoryApi.getCategory().then((cats) {
       setState(() {
-        categories = categories;
+        categories = cats;
       });
+      print(categories);
     });
     super.initState();
   }
@@ -50,7 +54,6 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     });
     Directory dir = await getApplicationDocumentsDirectory();
     storage = JSONStorage(localFiles["jsonProviderName"], dir.path);
-    storage.appendMap({"email": "otavio@ogoes.dev"});
     String email = storage.getContent()["email"];
 
     await ActivityApi.sendActivities(email, entries);
@@ -59,7 +62,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
       isLoading = false;
     });
 
-    Navigator.pop(context, null);
+    // Navigator.pop(context, null);
   }
 
   @override
@@ -255,7 +258,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     });
   }
 
-  Future buildShowDialog(BuildContext context) {
+  Future buildShowDialog(BuildContext context) async {
     TextEditingController titleController = TextEditingController(text: "");
     TextEditingController descController = TextEditingController(text: "");
     MoneyMaskedTextController priceController = MoneyMaskedTextController(
@@ -265,6 +268,8 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     FocusNode titleFocus = FocusNode();
     FocusNode descFocus = FocusNode();
     FocusNode priceFocus = FocusNode();
+
+    List categories;
 
     return showDialog(
       context: context,
@@ -361,7 +366,8 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            onPressed: () {
+                            onPressed: () async {
+                              categories = await CategoryApi.getCategory();
                               showDialog(
                                 context: context,
                                 child: SimpleDialog(

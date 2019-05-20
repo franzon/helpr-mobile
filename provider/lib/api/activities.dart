@@ -5,21 +5,32 @@ import 'package:mobile/utils/constants.dart';
 
 class ActivityApi {
   static Future<List> sendActivities(String email, List activities) async {
-    print(email);
-    print(activities);
-    final response = await http.post("$apiUrl/provider/category", body: {
-      "email": email,
-      "activities": json.encode(activities),
-    });
-    final responseJson = json.decode(response.body);
 
-    if (response.statusCode == 200) {
-      if (responseJson["data"] == null) {
-        return null;
+
+    String activitiesJson = json.encode([
+      {
+        "category": "N",
+        "title": "Azulejista 2",
+        "description": "Arrumo azulejo 2",
+        "price": "12345"
       }
-      return responseJson["data"];
-    } else {
-      return null;
-    }
+    ]);
+
+
+    print(activitiesJson);
+
+    Map body = {
+      "email": "carlos@sumare.com",
+      "activities": activities,
+    };
+
+    final response = await http.post("$apiUrl/provider/category",
+    headers: {
+      "Accept": "application/json"
+    },
+    body: body);
+
+    print(response.statusCode);
+    return null;
   }
 }
