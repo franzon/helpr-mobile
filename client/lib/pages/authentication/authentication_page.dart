@@ -2,75 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:mobile/pages/authentication/authentication_signin.dart';
 import 'package:mobile/pages/authentication/authentication_signup.dart';
 import 'package:mobile/utils/constants.dart';
-import 'package:provider/provider.dart';
+import 'package:rxdart/rxdart.dart';
 
-enum Tab { SignIn, SignUp }
-
-class AuthenticationScreenModel with ChangeNotifier {
-  Tab _selectedTab = Tab.SignIn;
-
-  final signInFormKey = GlobalKey<FormState>();
-  final signInEmailController = TextEditingController();
-  final signInPasswordController = TextEditingController();
-
-  final signUpFormKey = GlobalKey<FormState>();
-  final signUpNameController = TextEditingController();
-
-  final signUpEmailController = TextEditingController();
-  final signUpPasswordController = TextEditingController();
-
-  Tab get selectedTab => this._selectedTab;
-
-  void selectTab(Tab tab) {
-    this._selectedTab = tab;
-    notifyListeners();
-  }
-}
-
-class AuthenticationTab extends StatelessWidget {
-  final Tab tab;
-  final String text;
-  final bool selected;
-
-  AuthenticationTab(
-      {@required this.tab, @required this.text, @required this.selected});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Provider.of<AuthenticationScreenModel>(context).selectTab(this.tab);
-      },
-      child: Container(
-        decoration: BoxDecoration(
-            color:
-                this.selected ? colors["backgroundColor"] : Colors.transparent,
-            borderRadius: BorderRadius.circular(5)),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Text(
-            this.text,
-            style: TextStyle(
-                color: this.selected ? colors["primaryColor"] : Colors.white,
-                fontWeight: FontWeight.bold,
-                fontFamily: "Montserrat"),
-          ),
-        ),
-      ),
-    );
-  }
-}
+enum PageTabs { SignIn, SignUp }
 
 class AuthenticationPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider<AuthenticationScreenModel>(
-        builder: (_) => AuthenticationScreenModel(),
-        child: _AuthenticationPage());
-  }
-}
+  final BehaviorSubject selectedTab = BehaviorSubject.seeded(PageTabs.SignIn);
 
-class _AuthenticationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,29 +19,22 @@ class _AuthenticationPage extends StatelessWidget {
           children: <Widget>[
             Expanded(
               flex: 3,
-              child: AuthenticationHeader(),
+              child: _buildAuthenticationHeader(),
             ),
             Expanded(
               flex: 1,
-              child: AuthenticationTabs(),
+              child: _buildAuthenticationTabs(context),
             ),
             Expanded(
               flex: 1,
               child: Container(),
             ),
-            Expanded(flex: 7, child: AuthenticationForm()),
+            Expanded(flex: 7, child: _buildAuthenticationForm(context)),
           ],
         ));
   }
-}
 
-class AuthenticationHeader extends StatelessWidget {
-  const AuthenticationHeader({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildAuthenticationHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
@@ -112,44 +43,17 @@ class AuthenticationHeader extends StatelessWidget {
           child: Text(
             "helpr",
             style: TextStyle(
-                color: colors["primaryColor"],
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                fontFamily: "Montserrat"),
+              color: colors["primaryColor"],
+              fontSize: 48,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ],
     );
   }
-}
 
-class AuthenticationForm extends StatelessWidget {
-  const AuthenticationForm({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(left: 20, right: 20),
-      decoration: BoxDecoration(
-          color: colors["backgroundColor2"],
-          borderRadius: BorderRadius.circular(5)),
-      child: Provider.of<AuthenticationScreenModel>(context).selectedTab ==
-              Tab.SignIn
-          ? AuthenticationSignInForm()
-          : AuthenticationSignUpForm(),
-    );
-  }
-}
-
-class AuthenticationTabs extends StatelessWidget {
-  const AuthenticationTabs({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildAuthenticationTabs(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(left: 20, right: 20),
       decoration: BoxDecoration(
@@ -158,22 +62,66 @@ class AuthenticationTabs extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: <Widget>[
-          AuthenticationTab(
-            tab: Tab.SignIn,
+          _buildAuthenticationTab(
+            context,
+            tab: PageTabs.SignIn,
             text: "Entrar",
-            selected:
-                Provider.of<AuthenticationScreenModel>(context).selectedTab ==
-                    Tab.SignIn,
           ),
-          AuthenticationTab(
-            tab: Tab.SignUp,
+          _buildAuthenticationTab(
+            context,
+            tab: PageTabs.SignUp,
             text: "Nova conta",
-            selected:
-                Provider.of<AuthenticationScreenModel>(context).selectedTab ==
-                    Tab.SignUp,
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildAuthenticationTab(BuildContext context,
+      {PageTabs tab, String text}) {
+    return GestureDetector(
+      onTap: () {
+        selectedTab.add(tab);
+      },
+      child: StreamBuilder(
+          stream: selectedTab.stream,
+          builder: (context, snapshot) {
+            return Container(
+              decoration: BoxDecoration(
+                  color: snapshot.data == tab
+                      ? colors["backgroundColor"]
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(5)),
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    color: snapshot.data == tab
+                        ? colors["primaryColor"]
+                        : Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            );
+          }),
+    );
+  }
+
+  Widget _buildAuthenticationForm(BuildContext context) {
+    return Container(
+        margin: EdgeInsets.only(left: 20, right: 20),
+        decoration: BoxDecoration(
+            color: colors["backgroundColor2"],
+            borderRadius: BorderRadius.circular(5)),
+        child: StreamBuilder(
+          stream: selectedTab.stream,
+          builder: (context, snapshot) {
+            return snapshot.data == PageTabs.SignIn
+                ? AuthenticationSignInForm()
+                : AuthenticationSignUpForm();
+          },
+        ));
   }
 }
