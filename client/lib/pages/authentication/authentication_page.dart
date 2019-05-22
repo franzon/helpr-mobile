@@ -110,18 +110,13 @@ class AuthenticationPage extends StatelessWidget {
   }
 
   Widget _buildAuthenticationForm(BuildContext context) {
-    return Container(
-        margin: EdgeInsets.only(left: 20, right: 20),
-        decoration: BoxDecoration(
-            color: colors["backgroundColor2"],
-            borderRadius: BorderRadius.circular(5)),
-        child: StreamBuilder(
-          stream: selectedTab.stream,
-          builder: (context, snapshot) {
-            return snapshot.data == PageTabs.SignIn
-                ? AuthenticationSignInForm()
-                : AuthenticationSignUpForm();
-          },
-        ));
+    return StreamBuilder(
+      stream: selectedTab.stream,
+      builder: (context, snapshot) {
+        return snapshot.data == PageTabs.SignIn
+            ? AuthenticationSignInForm()
+            : AuthenticationSignUpForm();
+      },
+    );
   }
 }

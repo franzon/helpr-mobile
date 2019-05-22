@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/utils/constants.dart';
+import 'package:rxdart/rxdart.dart';
 // import 'package:flutter_keychain/flutter_keychain.dart';
 // import 'package:mobile/api/auth_api.dart';
 // import 'package:mobile/pages/authentication/authentication_page.dart';
@@ -8,10 +10,74 @@ import 'package:flutter/material.dart';
 // import 'package:provider/provider.dart';
 
 class AuthenticationSignInForm extends StatelessWidget {
+  final BehaviorSubject loading = BehaviorSubject.seeded(false);
+
   @override
   Widget build(BuildContext context) {
+    loading.listen((_) {
+      new Future.delayed(const Duration(seconds: 4), () => loading.add(false));
+    });
+
     return Container(
-      child: Text("a"),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 7,
+            child: Stack(
+              children: [
+                Container(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: colors["backgroundColor2"],
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                ),
+                Transform.translate(
+                  offset: Offset(0, 30),
+                  child: Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: colors["primaryColor"]),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            loading.add(true);
+                          },
+                          child: Container(
+                            width: 150,
+                            height: 60,
+                            child: StreamBuilder(
+                                stream: loading.stream,
+                                builder: (context, snapshot) {
+                                  return Center(
+                                      child: !snapshot.data
+                                          ? Text(
+                                              "Entrar",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          : Text("carregando"));
+                                }),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Container(),
+          )
+        ],
+      ),
     );
   }
 }

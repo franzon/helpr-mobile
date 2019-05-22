@@ -23,7 +23,7 @@ dependencies:
 
   flutter_form_builder: ^3.1.1
   get_it: ^1.0.3
-  simple_animations: ^1.2.0
+  animator: ^0.1.1
 
 dev_dependencies:
   flutter_test:
