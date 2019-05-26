@@ -17,15 +17,11 @@ class ActivitiesPage extends StatefulWidget {
 class _ActivitiesPageState extends State<ActivitiesPage> {
   List<Map> categories;
 
-  final List<Map> entries = <Map>[
-    {
-			"category": "N",
-			"title": "Azulej",
-			"description": "Arrumo a",
-			"price": "12345"
-    }
-  ];
+  final List<Map> entries = <Map>[];
 
+
+  Color cor = colors["accentColor"];
+  String buttonMSG = "SALVAR ATIVIDADES";
 
   JSONStorage storage;
 
@@ -56,13 +52,25 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
     storage = JSONStorage(localFiles["jsonProviderName"], dir.path);
     String email = storage.getContent()["email"];
 
-    await ActivityApi.sendActivities(email, entries);
+
+    var statusCode = await ActivityApi.sendActivities(email, entries);
 
     setState(() {
       isLoading = false;
     });
 
-    // Navigator.pop(context, null);
+    if (statusCode == 200) {
+      Navigator.pop(context, null);
+    } else {
+      setState(() {
+        cor = Color(0x77ff0000);
+        buttonMSG = "ERRO, TENTE NOVAMENTE MAIS TARDE";
+      });
+
+      await Future.delayed(Duration(seconds: 3), () {});
+      Navigator.pop(context, null);
+
+    }
   }
 
   @override
@@ -120,7 +128,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: RaisedButton(
-                                color: colors["accentColor"],
+                                color: cor,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
@@ -226,7 +234,7 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                         Expanded(
                           flex: 11,
                           child: HelprButton(
-                            text: "SALVAR ATIVIDADES",
+                            text: buttonMSG,
                             isDisabled: entries.length == 0,
                             isLoading: isLoading,
                             callback: () {
