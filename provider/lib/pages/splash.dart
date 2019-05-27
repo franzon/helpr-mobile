@@ -1,9 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_keychain/flutter_keychain.dart';
-import 'dart:async';
-import 'package:splashscreen/splashscreen.dart';
-import 'package:mobile/utils/constants.dart';
 import 'package:mobile/pages/login/login_page.dart';
+import 'package:mobile/pages/home.dart';
+import 'package:mobile/utils/constants.dart';
+import 'package:splashscreen/splashscreen.dart';
 
 class Splash extends StatefulWidget {
   @override
@@ -37,15 +39,16 @@ class _SplashState extends State<Splash> {
 
   Widget build(BuildContext context) {
     return SplashScreen(
-        seconds: 3,
-        navigateAfterSeconds: _token == 'Unknown' ? LoginPage() : null,
+        seconds: 2,
+        navigateAfterSeconds:
+            _token == 'Unknown' ? LoginPage() : HomePage(),
         title: Text(
           'helpr',
           style: TextStyle(
               fontWeight: FontWeight.w200,
               fontSize: 55.0,
-              color: colors["accentColor"],
-              fontFamily: 'Roboto-Regular'),
+              color: colors["primaryColor"],
+              fontFamily: 'Montserrat'),
         ),
         backgroundColor: colors["backgroundColor"],
         styleTextUnderTheLoader: TextStyle(),

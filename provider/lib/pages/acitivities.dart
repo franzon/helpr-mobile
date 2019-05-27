@@ -94,12 +94,8 @@ class _ActivitiesPageState extends State<ActivitiesPage> {
                             child: Text(
                               "Atividades",
                               style:
-                                  TextStyle(color: Colors.white, fontSize: 30),
+                                  TextStyle(color: Colors.white, fontSize: 25),
                             ),
-                          ),
-                          Text(
-                            "As mudanças serão persistidas somente após a confirmação",
-                            style: TextStyle(color: Colors.white54),
                           ),
                         ],
                       ),

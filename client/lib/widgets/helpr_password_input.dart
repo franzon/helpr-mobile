@@ -22,7 +22,7 @@ class _HelprPasswordInputState extends State<HelprPasswordInput> {
   void initState() {
     super.initState();
 
-    input.debounce(new Duration(milliseconds: 300)).listen((text) {
+    input.debounceTime(new Duration(milliseconds: 300)).listen((text) {
       bool hasMinimumLength = text.length >= 6;
       callback(hasMinimumLength, text);
     });
@@ -40,7 +40,6 @@ class _HelprPasswordInputState extends State<HelprPasswordInput> {
       obscureText: true,
       onChanged: (text) => input.add(text),
       keyboardType: TextInputType.text,
-      
       maxLines: 1,
       decoration: InputDecoration(
           filled: true,

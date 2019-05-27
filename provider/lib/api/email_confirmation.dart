@@ -7,7 +7,7 @@ class UserApi {
   static Future<Map> sendCode(String email) async {
     return await http
         .post("$apiUrl/authentication/email/sendConfirmationCode",
-            body: {email: email})
+            body: {"email": email})
         .then(
             (response) => response.statusCode == 200 ? response : throw Error())
         .then((response) => json.decode(response.body))
@@ -17,7 +17,7 @@ class UserApi {
   static Future<Map> confirmCode(String email, String confirmationCode) async {
     return await http
         .post("$apiUrl/authentication/email/confirmEmail",
-            body: {email: email, confirmationCode: confirmationCode})
+            body: {"email": email, "confirmationCode": confirmationCode})
         .then(
             (response) => response.statusCode == 200 ? response : throw Error())
         .then((response) => json.decode(response.body))

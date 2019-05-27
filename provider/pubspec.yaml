@@ -23,6 +23,7 @@ dependencies:
   flutter_masked_text: ^0.8.0
   cpf_cnpj_validator: ^1.0.5
   path_provider: ^1.1.0
+  flare_flutter: ^1.5.0
 
 dev_dependencies:
   flutter_test:
@@ -30,10 +31,21 @@ dev_dependencies:
   flutter_launcher_icons: "^0.7.0"
 
 flutter:
+  assets:
+    - assets/flare/
   fonts:
     - family: Roboto
       fonts:
         - asset: assets/fonts/Roboto-Regular.ttf
+    
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Regular.ttf
+          weight: 100
+        - asset: assets/fonts/Montserrat-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
   uses-material-design: true
 
 flutter_icons:
