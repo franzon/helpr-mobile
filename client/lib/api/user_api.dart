@@ -1,13 +1,13 @@
-import 'package:mobile/models/Category.dart';
-import 'package:mobile/models/User.dart';
+import 'dart:convert';
+
+import 'package:flutter/widgets.dart';
+import 'package:http/http.dart' as http;
+import 'package:mobile/utils/constants.dart';
 
 class UserApi {
-  static Future<User> getUserInfo() async {
-    // await Future.delayed(Duration(seconds: 3));
-    return User(id: "1", name: "Jorge", credits: 700, reputation: 500);
-  }
-
-  static Future<String> getToken() async {
-    return "tokenzito";
+  static Future<Map> getUserInfo({@required String token}) async {
+    return await http.get("$apiUrl/user/getUserInfo", headers: {
+      "token": token,
+    }).then((response) => json.decode(response.body));
   }
 }

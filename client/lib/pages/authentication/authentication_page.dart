@@ -12,26 +12,31 @@ class AuthenticationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        backgroundColor: colors["backgroundColor"],
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+      backgroundColor: colors["backgroundColor"],
+      body: Container(
+        child: Column(
           children: <Widget>[
             Expanded(
-              flex: 3,
-              child: _buildAuthenticationHeader(),
+              child: ListView(
+                children: <Widget>[
+                  Container(height: 20),
+                  _buildAuthenticationHeader(),
+                  Container(
+                    height: 20,
+                  ),
+                  Container(
+                      height: 60, child: _buildAuthenticationTabs(context)),
+                  Container(
+                    height: 50,
+                  ),
+                  _buildAuthenticationForm(context),
+                ],
+              ),
             ),
-            Expanded(
-              flex: 1,
-              child: _buildAuthenticationTabs(context),
-            ),
-            Expanded(
-              flex: 1,
-              child: Container(),
-            ),
-            Expanded(flex: 7, child: _buildAuthenticationForm(context)),
           ],
-        ));
+        ),
+      ),
+    );
   }
 
   Widget _buildAuthenticationHeader() {

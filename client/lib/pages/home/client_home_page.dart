@@ -1,4 +1,7 @@
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
+import 'package:mobile/main.dart';
+import 'package:mobile/models/User.dart';
+import 'package:mobile/providers/user_provider.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:flutter_spinkit/flutter_spinkit.dart';
 // import 'package:mobile/blocs/categories_bloc.dart';
@@ -9,6 +12,23 @@
 // import 'package:mobile/pages/home/provider_results/provider_results_page.dart';
 // import 'package:mobile/utils/constants.dart';
 // import 'package:page_transition/page_transition.dart';
+
+class ClientHomePage extends StatelessWidget {
+  final userProvider = getIt.get<UserProvider>();
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: userProvider.stream$,
+        builder: (context, snapshot) {
+          final user = snapshot.data as User;
+
+          return Container(
+            child: Text(snapshot.hasData ? user.name : "loading"),
+          );
+        });
+  }
+}
 
 // class _SearchModel with ChangeNotifier {
 //   final List<Category> allCategories;
