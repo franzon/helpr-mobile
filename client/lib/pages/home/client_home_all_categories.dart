@@ -1,4 +1,4 @@
-// import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:flutter_spinkit/flutter_spinkit.dart';
 // import 'package:mobile/api/categories_api.dart';
@@ -7,6 +7,13 @@
 // import 'package:mobile/pages/home/client_home_page.dart';
 // import 'package:mobile/utils/constants.dart';
 // import 'package:provider/provider.dart';
+
+class ClientHomeAllCategories extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
 
 // class _SearchModel with ChangeNotifier {
 //   final List<Category> allCategories;

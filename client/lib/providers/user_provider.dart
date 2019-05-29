@@ -12,8 +12,8 @@ import 'package:rxdart/rxdart.dart';
 // enum UserProviderStatus {UNINITIALIZED, LOADING,/}
 
 abstract class UserProvider {
-  BehaviorSubject _user = BehaviorSubject.seeded(null);
-  Observable get stream$ => _user.stream;
+  BehaviorSubject<User> _user = BehaviorSubject.seeded(null);
+  Observable<User> get stream$ => _user.stream;
 
   void dispose() => _user.close();
 
@@ -58,7 +58,8 @@ class UserProviderImplementation extends UserProvider {
             id: userInfo["data"]["_id"],
             name: userInfo["data"]["name"],
             credits: userInfo["data"]["credits"],
-            reputation: userInfo["data"]["reputation"]);
+            reputation: userInfo["data"]["reputation"],
+            mainAddress: userInfo["data"]["mainAddress"] ?? null);
 
         setUser(user);
 

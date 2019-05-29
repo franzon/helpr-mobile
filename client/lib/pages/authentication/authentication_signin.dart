@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mobile/api/auth_api.dart';
-import 'package:mobile/api/user_api.dart';
 import 'package:mobile/main.dart';
-import 'package:mobile/models/User.dart';
-import 'package:mobile/pages/home/client_home_page.dart';
 import 'package:mobile/providers/user_provider.dart';
 import 'package:mobile/utils/constants.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AuthenticationSignInForm extends StatelessWidget {

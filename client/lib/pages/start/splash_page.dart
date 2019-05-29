@@ -20,11 +20,13 @@ class SplashPage extends StatelessWidget {
         final token = await FlutterKeychain.get(key: "token");
         if (token != null) {
           final userInfo = await UserApi.getUserInfo(token: token);
+          debugPrint(userInfo.toString());
           final user = User(
               id: userInfo["data"]["_id"],
               name: userInfo["data"]["name"],
               credits: userInfo["data"]["credits"],
-              reputation: userInfo["data"]["reputation"]);
+              reputation: userInfo["data"]["reputation"],
+              mainAddress: userInfo["data"]["mainAddress"]);
 
           userProvider.setUser(user);
 

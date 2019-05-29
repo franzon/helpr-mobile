@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mobile/api/categories_api.dart';
 import 'package:mobile/main.dart';
+import 'package:mobile/models/Category.dart';
 import 'package:mobile/models/User.dart';
+import 'package:mobile/pages/home/address/address_page.dart';
+import 'package:mobile/pages/home/provider_results/provider_results_page.dart';
 import 'package:mobile/providers/user_provider.dart';
+import 'package:mobile/utils/constants.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:rxdart/rxdart.dart';
 // import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:flutter_spinkit/flutter_spinkit.dart';
 // import 'package:mobile/blocs/categories_bloc.dart';
@@ -16,504 +24,282 @@ import 'package:mobile/providers/user_provider.dart';
 class ClientHomePage extends StatelessWidget {
   final userProvider = getIt.get<UserProvider>();
 
+  final BehaviorSubject<List<Category>> _popularCategories$ =
+      BehaviorSubject.seeded(null);
+
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: userProvider.stream$,
-        builder: (context, snapshot) {
-          final user = snapshot.data as User;
+    userProvider.stream$.listen((user) async {
+      try {
+        final result = await CategoriesApi.getPopularCategories();
+        switch (result["message"]) {
+          case "success":
 
-          return Container(
-            child: Text(snapshot.hasData ? user.name : "loading"),
-          );
-        });
+            // só na gambiarra
+            final data = (result["data"] as List)
+                .map((i) => Category(id: i["identifier"], title: i["title"]))
+                .toList();
+            debugPrint(data.toString());
+            _popularCategories$.add(data);
+            break;
+          default:
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+
+      if (user.mainAddress == null) {
+        // Navigator.pushReplacement(
+        //     context,
+        //     PageTransition(
+        //         duration: const Duration(milliseconds: 500),
+        //         type: PageTransitionType.fade,
+        //         child: AddressPage()));
+      }
+    });
+
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomPadding: false,
+      backgroundColor: colors["backgroundColor"],
+      body: StreamBuilder<User>(
+          stream: userProvider.stream$,
+          builder: (context, snapshot) {
+            return Column(
+              children: <Widget>[
+                Container(
+                  height: 180,
+                  color: colors["backgroundColor2"],
+                  child: Stack(
+                    children: <Widget>[
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[_buildHeader(snapshot)],
+                      ),
+                      Transform.translate(
+                        offset: Offset(0, 30),
+                        child: _buildSearch(),
+                      )
+                    ],
+                  ),
+                ),
+                Column(
+                  children: <Widget>[
+                    Container(
+                      margin:
+                          const EdgeInsets.only(top: 90, left: 20, right: 20),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: colors["backgroundColor2"]),
+                      height: 230,
+                      child: StreamBuilder(
+                        stream: _popularCategories$,
+                        builder:
+                            (BuildContext context, AsyncSnapshot snapshot) {
+                          if (snapshot.hasData) {
+                            return GridView.count(
+                              shrinkWrap: true,
+                              crossAxisCount: 3,
+                              children: <Widget>[
+                                for (Category category in snapshot.data)
+                                  _buildCategoryIcon(context,
+                                      category: category),
+                              ],
+                            );
+                          }
+                          return SpinKitWave(
+                            color: colors["primaryColor"],
+                          );
+                        },
+                      ),
+                    ),
+                    Container(
+                      child: Row(
+                        children: <Widget>[
+                          _buildReputationCard(snapshot),
+                          _buildCreditsCard(snapshot)
+                        ],
+                      ),
+                    )
+                  ],
+                )
+              ],
+            );
+          }),
+    );
+  }
+
+  Expanded _buildReputationCard(AsyncSnapshot<User> snapshot) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.only(top: 20, left: 20, right: 5),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: colors["backgroundColor2"]),
+        height: 120,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                "Reputação",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20.0),
+                    child: Image.asset(
+                      "assets/icons/reputation.png",
+                      scale: 2.5,
+                    ),
+                  ),
+                  Text(
+                    snapshot.hasData ? snapshot.data.reputation.toString() : "",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: colors["primaryColor"]),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Expanded _buildCreditsCard(AsyncSnapshot<User> snapshot) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.only(top: 20, right: 20, left: 5),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: colors["backgroundColor2"]),
+        height: 120,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                "Créditos",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20.0),
+                    child: Image.asset(
+                      "assets/icons/coins.png",
+                      scale: 2.5,
+                    ),
+                  ),
+                  Text(
+                    snapshot.hasData ? snapshot.data.credits.toString() : "",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: colors["primaryColor"]),
+                  )
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoryIcon(BuildContext context, {Category category}) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+            context,
+            PageTransition(
+                type: PageTransitionType.scale,
+                duration: Duration(milliseconds: 500),
+                alignment: Alignment.center,
+                child: ProviderResultsPage(
+                  category: category,
+                )));
+      },
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Image.asset(
+            "assets/icons/" + category.id + ".png",
+            scale: 1.9,
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Text(
+              category.title,
+              style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Align _buildSearch() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        height: 60,
+        width: 250,
+        child: TextField(
+          style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),
+          decoration: InputDecoration(
+              hintText: "Procurar categoria",
+              hintMaxLines: 1,
+              hintStyle: TextStyle(
+                color: Colors.white,
+              ),
+              filled: true,
+              fillColor: colors["backgroundColor"],
+              prefixIcon: Padding(
+                padding: const EdgeInsets.only(left: 10, right: 5),
+                child: Icon(Icons.search, color: Colors.white),
+              ),
+              border: OutlineInputBorder(
+                  borderSide: BorderSide(color: colors["primaryColor"]),
+                  borderRadius: BorderRadius.all(Radius.circular(5))),
+              enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colors["primaryColor"]),
+                  borderRadius: BorderRadius.all(Radius.circular(5))),
+              focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colors["primaryColor"]),
+                  borderRadius: BorderRadius.all(Radius.circular(5)))),
+        ),
+      ),
+    );
+  }
+
+  Center _buildHeader(AsyncSnapshot<User> snapshot) {
+    return Center(
+        child: Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Text(
+          "Olá, ",
+          style: TextStyle(fontSize: 22),
+        ),
+        Text(
+          snapshot.hasData ? snapshot.data.name : "",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
+        ),
+      ],
+    ));
   }
 }
-
-// class _SearchModel with ChangeNotifier {
-//   final List<Category> allCategories;
-//   List<Category> _filteredCategories;
-//   String _searchString;
-
-//   _SearchModel(this.allCategories) {
-//     this._filteredCategories = allCategories;
-//   }
-
-//   getFilteredCategories() => _filteredCategories;
-//   setFilteredCategories(List<Category> filteredCategories) =>
-//       this._filteredCategories = filteredCategories;
-
-//   getSearchString() => _searchString;
-//   setSearchString(String searchString) => this._searchString = searchString;
-
-//   void filter(String searchString) {
-//     // debugPrint("filter" + searchString);
-//     this._filteredCategories = this.allCategories;
-//     this._filteredCategories = this._filteredCategories.where((category) {
-//       return searchString.length == 0 ||
-//           category.name.toLowerCase().contains(searchString.toLowerCase());
-//     }).toList();
-//     notifyListeners();
-//   }
-// }
-
-// class CategoryIcon extends StatelessWidget {
-//   final String id;
-//   final String name;
-
-//   CategoryIcon({@required this.id, @required this.name});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return GestureDetector(
-//       onTap: () {
-//         Navigator.push(
-//             context,
-//             PageTransition(
-//                 type: PageTransitionType.scale,
-//                 duration: Duration(milliseconds: 500),
-//                 alignment: Alignment.center,
-//                 child: ProviderResultsPage()));
-//       },
-//       child: Column(
-//         mainAxisAlignment: MainAxisAlignment.center,
-//         children: <Widget>[
-//           Image.asset("assets/icons/" + this.id + ".png"),
-//           Padding(
-//             padding: const EdgeInsets.only(top: 8.0),
-//             child: Text(
-//               this.name,
-//               style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),
-//             ),
-//           )
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class ClientHomePage extends StatefulWidget {
-//   const ClientHomePage({Key key}) : super(key: key);
-
-//   @override
-//   _ClientHomePageState createState() => _ClientHomePageState();
-// }
-
-// class _ClientHomePageState extends State<ClientHomePage> {
-//   @override
-//   Widget build(BuildContext context) {
-//     final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
-//     final CategoriesBloc categoriesBloc =
-//         BlocProvider.of<CategoriesBloc>(context);
-
-//     userBloc.dispatch(LoadUserPage());
-//     userBloc.dispatch(LoadUser());
-
-//     categoriesBloc.dispatch(LoadCategoriesPage());
-//     categoriesBloc.dispatch(LoadCategories());
-
-//     return Scaffold(
-//       drawer: ClientHomeDrawer(),
-//       body: Stack(
-//         children: <Widget>[
-//           _ClientHomeHeader(
-//               /*  userBloc: this.userBloc */
-//               ),
-//           _ClientHomeSearch(),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class _ClientHomeHeader extends StatelessWidget {
-//   const _ClientHomeHeader({Key key /* @required this.userBloc */})
-//       : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
-
-//     return Column(
-//       children: <Widget>[
-//         Expanded(
-//           flex: 2,
-//           child: Container(
-//             color: colors["backgroundColor2"],
-//             child: Padding(
-//               padding: const EdgeInsets.only(top: 30.0),
-//               child: Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceAround,
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: <Widget>[
-//                   Container(
-//                     child: Builder(
-//                       builder: (context) => GestureDetector(
-//                             child: Icon(Icons.menu, color: Colors.white),
-//                             onTap: () {
-//                               Scaffold.of(context).openDrawer();
-//                             },
-//                           ),
-//                     ),
-//                   ),
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: <Widget>[
-//                       Text(
-//                         "Olá, ",
-//                         style: TextStyle(
-//                             color: Colors.white,
-//                             fontSize: 20,
-//                             fontFamily: "Montserrat"),
-//                       ),
-//                       BlocBuilder(
-//                         bloc: userBloc,
-//                         builder: (BuildContext context, UserState state) {
-//                           if (state is UserUninitialized ||
-//                               state is UserLoading) {
-//                             return Text("...");
-//                           } else if (state is UserLoaded) {
-//                             return Text(state.user.name,
-//                                 style: TextStyle(
-//                                     color: Colors.white,
-//                                     fontWeight: FontWeight.bold,
-//                                     fontSize: 20,
-//                                     fontFamily: "Montserrat"));
-//                           }
-//                         },
-//                       ),
-//                     ],
-//                   ),
-//                   Container(
-//                     child: Builder(
-//                       builder: (context) => GestureDetector(
-//                             child: Icon(Icons.help, color: Colors.white),
-//                             onTap: () {},
-//                           ),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//         _ClientHomeBody()
-//       ],
-//     );
-//   }
-// }
-
-// class _ClientHomeBody extends StatelessWidget {
-//   const _ClientHomeBody({
-//     Key key,
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Expanded(
-//         flex: 8,
-//         child: Container(
-//           color: colors["backgroundColor"],
-//           child: Stack(
-//             children: <Widget>[
-//               Padding(
-//                 padding: const EdgeInsets.only(
-//                     left: 20.0, right: 20.0, bottom: 30.0, top: 70.0),
-//                 child: Column(
-//                   children: <Widget>[_ClientHomeGrid(), _ClientHomeFooter()],
-//                 ),
-//               )
-//             ],
-//           ),
-//         ));
-//   }
-// }
-
-// class _ClientHomeGrid extends StatelessWidget {
-//   const _ClientHomeGrid({
-//     Key key,
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final CategoriesBloc categoriesBloc =
-//         BlocProvider.of<CategoriesBloc>(context);
-
-//     return Expanded(
-//       flex: 2,
-//       child: Container(
-//         decoration: BoxDecoration(
-//             color: colors["backgroundColor2"],
-//             borderRadius: BorderRadius.circular(5)),
-//         child: Row(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: <Widget>[
-//             Column(
-//               children: <Widget>[
-//                 Padding(
-//                   padding: const EdgeInsets.all(15),
-//                   child: Text(
-//                     "Do que precisa hoje?",
-//                     style: TextStyle(
-//                         color: Colors.white,
-//                         fontFamily: "Montserrat",
-//                         fontWeight: FontWeight.bold,
-//                         fontSize: 16),
-//                   ),
-//                 ),
-//                 SizedBox(
-//                     height: 190,
-//                     width: 300,
-//                     child: BlocBuilder(
-//                       bloc: categoriesBloc,
-//                       builder: (BuildContext context, CategoriesState state) {
-//                         if (state is CategoriesUninitialized ||
-//                             state is CategoriesLoading) {
-//                           return SpinKitWave(
-//                             color: colors["primaryColor"],
-//                             size: 20,
-//                           );
-//                         } else if (state is CategoriesLoaded) {
-//                           return GridView.count(
-//                             shrinkWrap: true,
-//                             crossAxisCount: 3,
-//                             children: <Widget>[
-//                               for (Category category in state.popularCategories)
-//                                 CategoryIcon(
-//                                     name: category.name, id: category.id),
-//                             ],
-//                           );
-//                         }
-//                       },
-//                     )),
-//                 // Padding(
-//                 //   padding: const EdgeInsets.all(15),
-//                 //   child: GestureDetector(
-//                 //     onTap: () {
-//                 //       Navigator.push(
-//                 //           context,
-//                 //           PageTransition(
-//                 //               type: PageTransitionType.scale,
-//                 //               alignment: Alignment.bottomCenter,
-//                 //               child: ClientHomeAllCategories()));
-//                 //     },
-//                 //     child: Text(
-//                 //       "Mais",
-//                 //       style: TextStyle(
-//                 //           color: Colors.white,
-//                 //           fontFamily: "Montserrat",
-//                 //           fontWeight: FontWeight.bold),
-//                 //     ),
-//                 //   ),
-//                 // ),
-//               ],
-//             )
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class _ClientHomeFooter extends StatelessWidget {
-//   const _ClientHomeFooter({
-//     Key key,
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
-
-//     return Expanded(
-//       flex: 1,
-//       child: Padding(
-//         padding: const EdgeInsets.only(top: 20.0),
-//         child: Row(
-//           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//           crossAxisAlignment: CrossAxisAlignment.stretch,
-//           children: <Widget>[
-//             Expanded(
-//               child: Container(
-//                 margin: EdgeInsets.only(right: 5),
-//                 child: Column(
-//                   children: <Widget>[
-//                     Padding(
-//                       padding: const EdgeInsets.all(15.0),
-//                       child: Text(
-//                         "Reputação",
-//                         style: TextStyle(
-//                             color: Colors.white,
-//                             fontFamily: "Montserrat",
-//                             fontWeight: FontWeight.bold),
-//                       ),
-//                     ),
-//                     Padding(
-//                       padding: const EdgeInsets.all(15.0),
-//                       child: Row(
-//                         mainAxisAlignment: MainAxisAlignment.center,
-//                         children: <Widget>[
-//                           Image.asset("assets/icons/reputation.png"),
-//                           Padding(
-//                               padding: const EdgeInsets.only(left: 15.0),
-//                               child: BlocBuilder(
-//                                 bloc: userBloc,
-//                                 builder:
-//                                     (BuildContext context, UserState state) {
-//                                   if (state is UserUninitialized ||
-//                                       state is UserLoading) {
-//                                     return Text("...");
-//                                   } else if (state is UserLoaded) {
-//                                     return Text(
-//                                       state.user.reputation.toString(),
-//                                       style: TextStyle(
-//                                         color: colors["primaryColor"],
-//                                         fontWeight: FontWeight.bold,
-//                                         fontFamily: "Montserrat",
-//                                       ),
-//                                     );
-//                                   }
-//                                 },
-//                               ))
-//                         ],
-//                       ),
-//                     )
-//                   ],
-//                 ),
-//                 decoration: BoxDecoration(
-//                     color: colors["backgroundColor2"],
-//                     borderRadius: BorderRadius.circular(5)),
-//               ),
-//             ),
-//             Expanded(
-//               child: Container(
-//                 margin: EdgeInsets.only(right: 5),
-//                 child: Column(
-//                   children: <Widget>[
-//                     Padding(
-//                       padding: const EdgeInsets.all(15.0),
-//                       child: Text(
-//                         "Créditos",
-//                         style: TextStyle(
-//                             color: Colors.white,
-//                             fontFamily: "Montserrat",
-//                             fontWeight: FontWeight.bold),
-//                       ),
-//                     ),
-//                     Padding(
-//                       padding: const EdgeInsets.all(15.0),
-//                       child: Row(
-//                         mainAxisAlignment: MainAxisAlignment.center,
-//                         children: <Widget>[
-//                           Image.asset("assets/icons/dollar.png"),
-//                           Padding(
-//                               padding: const EdgeInsets.only(left: 15.0),
-//                               child: BlocBuilder(
-//                                 bloc: userBloc,
-//                                 builder:
-//                                     (BuildContext context, UserState state) {
-//                                   if (state is UserUninitialized ||
-//                                       state is UserLoading) {
-//                                     return Text("...");
-//                                   } else if (state is UserLoaded) {
-//                                     return Text(
-//                                       state.user.credits.toString(),
-//                                       style: TextStyle(
-//                                         color: colors["primaryColor"],
-//                                         fontWeight: FontWeight.bold,
-//                                         fontFamily: "Montserrat",
-//                                       ),
-//                                     );
-//                                   }
-//                                 },
-//                               ))
-//                         ],
-//                       ),
-//                     )
-//                   ],
-//                 ),
-//                 decoration: BoxDecoration(
-//                     color: colors["backgroundColor2"],
-//                     borderRadius: BorderRadius.circular(5)),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-
-// class _ClientHomeSearch extends StatelessWidget {
-//   const _ClientHomeSearch({
-//     Key key,
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: <Widget>[
-//         Container(
-//           margin: EdgeInsets.only(left: 20, right: 20, top: 100),
-//           height: 60,
-//           child: TextField(
-//             style: TextStyle(color: Colors.white, fontFamily: "Montserrat"),
-//             decoration: InputDecoration(
-//                 hintText: "Procurar por atividade, categoria, etc",
-//                 hintMaxLines: 1,
-//                 hintStyle: TextStyle(
-//                   color: Colors.white,
-//                   fontFamily: "Montserrat",
-//                 ),
-//                 filled: true,
-//                 fillColor: colors["backgroundColor"],
-//                 prefixIcon: Padding(
-//                   padding: const EdgeInsets.only(left: 10, right: 5),
-//                   child: Icon(Icons.search, color: Colors.white),
-//                 ),
-//                 border: OutlineInputBorder(
-//                     borderSide: BorderSide(color: colors["primaryColor"]),
-//                     borderRadius: BorderRadius.all(Radius.circular(5))),
-//                 enabledBorder: OutlineInputBorder(
-//                     borderSide: BorderSide(color: colors["primaryColor"]),
-//                     borderRadius: BorderRadius.all(Radius.circular(5))),
-//                 focusedBorder: OutlineInputBorder(
-//                     borderSide: BorderSide(color: colors["primaryColor"]),
-//                     borderRadius: BorderRadius.all(Radius.circular(5)))),
-//           ),
-//         ),
-//         // _SearchSugestions()
-//       ],
-//     );
-//   }
-// }
-
-// class _SearchSugestions extends StatelessWidget {
-//   const _SearchSugestions({
-//     Key key,
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//         margin: EdgeInsets.only(left: 20, right: 20, top: 20),
-//         height: 120,
-//         child: ListView(
-//           children: <Widget>[
-//             ListTile(
-//               title: Text("A"),
-//             ),
-//             ListTile(
-//               title: Text("A"),
-//             ),
-//             ListTile(
-//               title: Text("A"),
-//             )
-//           ],
-//         ),
-//         decoration: BoxDecoration(
-//             color: colors["backgroundColor"],
-//             border: Border.all(color: Colors.black),
-//             borderRadius: BorderRadius.circular(5)));
-//   }
-// }

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/models/Category.dart';
 import 'package:mobile/utils/constants.dart';
 
 class ProviderResultsPage extends StatelessWidget {
+  final Category category;
+
+  const ProviderResultsPage({@required this.category});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,7 +84,7 @@ class ProviderResultsPage extends StatelessWidget {
               Row(
                 children: <Widget>[
                   Text(
-                    "Encanador",
+                    category.title,
                     style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
