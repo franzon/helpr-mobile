@@ -32,6 +32,7 @@ class ClientHomePage extends StatelessWidget {
     userProvider.stream$.listen((user) async {
       try {
         final result = await CategoriesApi.getPopularCategories();
+        debugPrint(result.toString());
         switch (result["message"]) {
           case "success":
 
@@ -226,8 +227,8 @@ class ClientHomePage extends StatelessWidget {
         Navigator.push(
             context,
             PageTransition(
-                type: PageTransitionType.scale,
-                duration: Duration(milliseconds: 500),
+                type: PageTransitionType.leftToRightWithFade,
+                duration: Duration(milliseconds: 300),
                 alignment: Alignment.center,
                 child: ProviderResultsPage(
                   category: category,
