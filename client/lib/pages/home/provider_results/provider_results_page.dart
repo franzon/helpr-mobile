@@ -1,11 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_fluid_slider/flutter_fluid_slider.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:location/location.dart';
+import 'package:mobile/api/provider_api.dart';
 import 'package:mobile/models/Category.dart';
+import 'package:mobile/models/ProviderResult.dart';
 import 'package:mobile/pages/home/provider_results/provider_results_card.dart';
+import 'package:mobile/providers/user_provider.dart';
 import 'package:mobile/utils/constants.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:simple_animations/simple_animations.dart';
-import 'package:flutter_fluid_slider/flutter_fluid_slider.dart';
+
+import '../../../main.dart';
+
+class _ProviderResultsFilter {
+  final int maxDistance;
+  final bool showOffline;
+
+  _ProviderResultsFilter(
+      {@required this.maxDistance, @required this.showOffline});
+}
 
 class ProviderResultsPage extends StatefulWidget {
   final Category category;
@@ -13,32 +29,94 @@ class ProviderResultsPage extends StatefulWidget {
   ProviderResultsPage({@required this.category});
 
   @override
-  _ProviderResultsPageState createState() => _ProviderResultsPageState();
+  _ProviderResultsPageState createState() =>
+      _ProviderResultsPageState(category: category);
 }
 
 class _ProviderResultsPageState extends State<ProviderResultsPage>
     with TickerProviderStateMixin {
   bool showFilter = false;
-  bool showOffline = false;
-  double maxDistance = 5.0;
+
+  final BehaviorSubject<int> _maxDistance$ = BehaviorSubject.seeded(5);
+  final BehaviorSubject<bool> _showOffline$ = BehaviorSubject.seeded(false);
 
   AnimationController animationController;
   Animation<double> animation;
   double _height = 0.0;
 
+  final Category category;
+  final userProvider = getIt.get<UserProvider>();
+
+  final BehaviorSubject<List<ProviderResult>> _providers$ =
+      BehaviorSubject.seeded(null);
+  final locationGetter = Location();
+
+  _ProviderResultsPageState({@required this.category});
+
   @override
   void initState() {
-    super.initState();
     animationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 200),
     )..addListener(() => setState(() {}));
     animation = Tween(begin: 0.0, end: 0.25).animate(animationController);
+
+    userProvider.stream$.listen((user) async {
+      if (user.mainAddress == null) {
+        // Navigator.pushReplacement(
+        //     context,
+        //     PageTransition(
+        //         duration: const Duration(milliseconds: 500),
+        //         type: PageTransitionType.fade,
+        //         child: AddressPage()));
+      }
+    });
+
+    try {
+      Observable.combineLatest2(
+          _maxDistance$.debounceTime(const Duration(milliseconds: 300)),
+          _showOffline$, (int maxDistance, bool showOffline) {
+        return _ProviderResultsFilter(
+            maxDistance: maxDistance, showOffline: showOffline);
+      }).listen((_ProviderResultsFilter filters) async {
+        final currentLocation = await locationGetter.getLocation();
+
+        final result = await ProviderApi.getNearbyProviders(
+            category: category.id,
+            maxDistance: filters.maxDistance,
+            clientLatitude: currentLocation["latitude"],
+            clientLongitude: currentLocation["longitude"]);
+
+        debugPrint(result["data"].toString());
+        switch (result["message"]) {
+          case "success":
+            final data = (result["data"] as List)
+                .asMap()
+                .map((i, el) {
+                  final pr = ProviderResult.fromJson(el);
+                  debugPrint(i.toString());
+                  pr.index = i;
+                  return MapEntry(i, pr);
+                })
+                .values
+                .where((i) => filters.showOffline || i.isOnline)
+                .toList();
+            _providers$.add(data);
+            break;
+          default:
+        }
+      });
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+
+    super.initState();
   }
 
   @override
   void dispose() {
     animationController.dispose();
+    _providers$.close();
     super.dispose();
   }
 
@@ -56,12 +134,17 @@ class _ProviderResultsPageState extends State<ProviderResultsPage>
               child: Row(
                 children: <Widget>[
                   GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).pop();
+                    },
                     child: Row(
                       children: <Widget>[
                         Icon(Icons.arrow_back),
                         Padding(
                           padding: EdgeInsets.only(left: 10),
-                          child: Text("Voltar", style: TextStyle(fontSize: 18)),
+                          child: Text("Voltar",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
                         )
                       ],
                     ),
@@ -114,10 +197,10 @@ class _ProviderResultsPageState extends State<ProviderResultsPage>
                       ),
                       Switch(
                         activeColor: colors["primaryColor"],
-                        value: showOffline,
+                        value: _showOffline$.value,
                         onChanged: (bool value) {
                           setState(() {
-                            showOffline = !showOffline;
+                            _showOffline$.add(!_showOffline$.value);
                           });
                         },
                       ),
@@ -138,7 +221,7 @@ class _ProviderResultsPageState extends State<ProviderResultsPage>
                           max: 25.0,
                           height: 30.0,
                           sliderColor: colors["primaryColor"],
-                          value: maxDistance,
+                          value: _maxDistance$.value.toDouble(),
                           labelsTextStyle: TextStyle(fontSize: 14),
                           valueTextStyle: TextStyle(
                               fontSize: 12,
@@ -146,7 +229,7 @@ class _ProviderResultsPageState extends State<ProviderResultsPage>
                               fontWeight: FontWeight.bold),
                           onChanged: (double value) {
                             setState(() {
-                              maxDistance = value;
+                              _maxDistance$.add(value.toInt());
                             });
                           },
                         ),
@@ -160,311 +243,84 @@ class _ProviderResultsPageState extends State<ProviderResultsPage>
             ),
             Flexible(
               child: Container(
-                child: ListView(
-                  shrinkWrap: true,
-                  padding: EdgeInsets.only(top: 40),
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 20.0,
-                        right: 20.0,
-                      ),
-                      child: ProviderResultsCard(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 20.0,
-                        right: 20.0,
-                      ),
-                      child: ProviderResultsCard(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 20.0,
-                        right: 20.0,
-                      ),
-                      child: ProviderResultsCard(),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 20.0,
-                        right: 20.0,
-                      ),
-                      child: ProviderResultsCard(),
-                    ),
-                  ],
+                child: StreamBuilder<List<ProviderResult>>(
+                  stream: _providers$,
+                  builder: (BuildContext context,
+                      AsyncSnapshot<List<ProviderResult>> snapshot) {
+                    if (snapshot.hasData) {
+                      return ListView.builder(
+                        padding: EdgeInsets.only(top: 40),
+                        shrinkWrap: true,
+                        itemCount: snapshot.data.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(
+                              left: 20.0,
+                              right: 20.0,
+                            ),
+                            child: ProviderResultsCard(
+                              provider: snapshot.data[index],
+                            ),
+                          );
+                        },
+                      );
+                      // return GridView.count(
+                      //   shrinkWrap: true,
+                      //   crossAxisCount: 3,
+                      //   children: <Widget>[
+                      //     for (Category category in snapshot.data)
+                      //       _buildCategoryIcon(context, category: category),
+                      //   ],
+                      // );
+                    } else
+                      return SpinKitWave(
+                        color: colors["primaryColor"],
+                        size: 30,
+                      );
+                  },
                 ),
+                // child: ListView.builder(
+                //   itemBuilder: ,
+                // )
+                // child: ListView(
+                //   shrinkWrap: true,
+                //   padding: EdgeInsets.only(top: 40),
+                //   children: <Widget>[
+                //     Padding(
+                //       padding: const EdgeInsets.only(
+                //         left: 20.0,
+                //         right: 20.0,
+                //       ),
+                //       child: ProviderResultsCard(),
+                //     ),
+                //     Padding(
+                //       padding: const EdgeInsets.only(
+                //         left: 20.0,
+                //         right: 20.0,
+                //       ),
+                //       child: ProviderResultsCard(),
+                //     ),
+                //     Padding(
+                //       padding: const EdgeInsets.only(
+                //         left: 20.0,
+                //         right: 20.0,
+                //       ),
+                //       child: ProviderResultsCard(),
+                //     ),
+                //     Padding(
+                //       padding: const EdgeInsets.only(
+                //         left: 20.0,
+                //         right: 20.0,
+                //       ),
+                //       child: ProviderResultsCard(),
+                //     ),
+                //   ],
+                // ),
               ),
             )
           ],
         ),
       ),
     );
-    // return SafeArea(
-    //   child: Scaffold(
-    //       backgroundColor: colors["backgroundColor"],
-    //       body: Column(
-    //         mainAxisSize: MainAxisSize.max,
-    //         children: <Widget>[
-    //           Container(
-    //             height: 60,
-    //             child: _buildHeader(context),
-    //           ),
-    //           // Container(
-    //           //   child: AnimatedBuilder(
-    //           //     animation: _animation,
-    //           //     builder: (BuildContext context, _) => Container(
-    //           //           height: _controller.value,
-    //           //           child: _buildSubHeader(),
-    //           //         ),
-    //           //   ),
-    //           // ),
-    //           Flexible(
-    //             child: Container(
-    //               height: _height.value,
-    //               child: _buildSubHeader(),
-    //             ),
-    //           ),
-    //           Expanded(child: Container(child: _buildBody())),
-    //         ],
-    //       )),
-    // );
   }
-
-  // Container _buildBody() {
-  //   return Container(
-  //     child: ListView(
-  //       padding: EdgeInsets.only(top: 40),
-  //       children: <Widget>[
-  //         Padding(
-  //           padding: const EdgeInsets.only(
-  //             left: 20.0,
-  //             right: 20.0,
-  //           ),
-  //           child: _buildProviderCard(),
-  //         ),
-  //         Padding(
-  //           padding: const EdgeInsets.only(
-  //             left: 20.0,
-  //             right: 20.0,
-  //           ),
-  //           child: _buildProviderCard(),
-  //         ),
-  //         Padding(
-  //           padding: const EdgeInsets.only(
-  //             left: 20.0,
-  //             right: 20.0,
-  //           ),
-  //           child: _buildProviderCard(),
-  //         ),
-  //         Padding(
-  //           padding: const EdgeInsets.only(
-  //             left: 20.0,
-  //             right: 20.0,
-  //           ),
-  //           child: _buildProviderCard(),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Container _buildSubHeader() {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       borderRadius: BorderRadius.only(bottomRight: Radius.circular(100)),
-  //       color: colors["backgroundColor2"],
-  //     ),
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.center,
-  //       children: <Widget>[
-  //         Column(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: <Widget>[
-  //             Text(
-  //               "Mostrando resultados para: ",
-  //               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-  //             ),
-  //             Row(
-  //               children: <Widget>[
-  //                 Text(
-  //                   widget.category.title,
-  //                   style: TextStyle(
-  //                       fontWeight: FontWeight.bold,
-  //                       fontSize: 16,
-  //                       color: colors["primaryColor"]),
-  //                 ),
-  //                 Text(
-  //                   ", até 15 km",
-  //                   style: TextStyle(
-  //                     fontWeight: FontWeight.bold,
-  //                     fontSize: 16,
-  //                   ),
-  //                 )
-  //               ],
-  //             ),
-  //           ],
-  //         )
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildHeader(BuildContext context) {
-  //   return Container(
-  //     color: colors["primaryColor"],
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: <Widget>[
-  //         GestureDetector(
-  //           onTap: () {
-  //             Navigator.of(context).pop();
-  //           },
-  //           child: Row(
-  //             children: <Widget>[
-  //               Padding(
-  //                 padding: const EdgeInsets.only(left: 20.0),
-  //                 child: Icon(
-  //                   Icons.arrow_back,
-  //                   size: 32,
-  //                 ),
-  //               ),
-  //               Padding(
-  //                 padding: const EdgeInsets.only(left: 10.0),
-  //                 child: Text(
-  //                   "Voltar",
-  //                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-  //                 ),
-  //               )
-  //             ],
-  //           ),
-  //         ),
-  //         Expanded(child: Container()),
-  //         GestureDetector(
-  //           onTap: () {
-  //             setState(() {
-  //               debugPrint("Maaa");
-  //               showFilter = !showFilter;
-
-  //               if (showFilter)
-  //                 _height = 120.0;
-  //               else
-  //                 _height = 0.0;
-  //             });
-
-  //             // _controller.forward();
-  //           },
-  //           child: Container(),
-  //           // child: Padding(
-  //           //   padding: const EdgeInsets.only(right: 20.0),
-  //           //   child: RotationTransition(
-  //           //       turns: _iconTurns, child: Icon(Icons.filter_list)),
-  //           // ),
-  //         )
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // Container _buildProviderCard() {
-  //   return Container(
-  //     margin: EdgeInsets.only(bottom: 40),
-  //     decoration: BoxDecoration(
-  //       color: colors["backgroundColor2"],
-  //       borderRadius: BorderRadius.only(
-  //           bottomLeft: Radius.circular(5),
-  //           topRight: Radius.circular(5),
-  //           bottomRight: Radius.circular(10)),
-  //       boxShadow: [
-  //         new BoxShadow(
-  //           color: Colors.black,
-  //           offset: new Offset(0.0, 0.5),
-  //           blurRadius: 0.5,
-  //         )
-  //       ],
-  //     ),
-  //     child: Stack(
-  //       children: <Widget>[
-  //         Padding(
-  //           padding: const EdgeInsets.only(left: 50, right: 20, bottom: 20),
-  //           child: Container(
-  //             child: Column(
-  //               mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //               children: <Widget>[
-  //                 Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   children: <Widget>[
-  //                     Text(
-  //                       "Fulano de tal",
-  //                       style: TextStyle(
-  //                           color: colors["primaryColor"],
-  //                           fontWeight: FontWeight.bold),
-  //                     ),
-  //                     Row(
-  //                       children: <Widget>[
-  //                         Padding(
-  //                           padding: const EdgeInsets.only(right: 8.0),
-  //                           child: Image.asset(
-  //                             "assets/icons/reputation.png",
-  //                             scale: 3,
-  //                           ),
-  //                         ),
-  //                         Padding(
-  //                           padding: const EdgeInsets.only(left: 4.0),
-  //                           child: Text(
-  //                             "3000",
-  //                             style: TextStyle(
-  //                                 color: Colors.yellow,
-  //                                 fontWeight: FontWeight.bold),
-  //                           ),
-  //                         )
-  //                       ],
-  //                     )
-  //                   ],
-  //                 ),
-  //                 Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   children: <Widget>[
-  //                     Column(
-  //                       children: <Widget>[
-  //                         Text("Ciclano, há 3 dias"),
-  //                         Text("Mucho bom...",
-  //                             style: TextStyle(
-  //                               fontSize: 12,
-  //                               color: Colors.grey,
-  //                             ))
-  //                       ],
-  //                     ),
-  //                     Column(
-  //                       crossAxisAlignment: CrossAxisAlignment.end,
-  //                       children: <Widget>[
-  //                         Text(
-  //                           "75",
-  //                           style: TextStyle(fontWeight: FontWeight.bold),
-  //                         ),
-  //                         Text("atendimentos")
-  //                       ],
-  //                     )
-  //                   ],
-  //                 )
-  //               ],
-  //             ),
-  //             height: 100,
-  //           ),
-  //         ),
-  //         Container(
-  //           transform: Matrix4.translationValues(-10.0, -10.0, 0.0),
-  //           decoration: new BoxDecoration(
-  //               image: DecorationImage(
-  //                   image: NetworkImage(
-  //                       "https://randomuser.me/api/portraits/men/37.jpg")),
-  //               shape: BoxShape.circle,
-  //               border: Border.all(width: 1, color: Colors.yellow)),
-  //           width: 50,
-  //           height: 50,
-  //         )
-  //       ],
-  //     ),
-  //   );
-  // }
 }

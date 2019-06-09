@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:location/location.dart';
 import 'package:mobile/api/categories_api.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/models/Category.dart';
@@ -27,10 +28,15 @@ class ClientHomePage extends StatelessWidget {
   final BehaviorSubject<List<Category>> _popularCategories$ =
       BehaviorSubject.seeded(null);
 
+  final locationGetter = Location();
+
   @override
   Widget build(BuildContext context) {
     userProvider.stream$.listen((user) async {
       try {
+        // Just to ask permission
+        locationGetter.getLocation();
+
         final result = await CategoriesApi.getPopularCategories();
         debugPrint(result.toString());
         switch (result["message"]) {
