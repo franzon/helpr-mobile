@@ -5,7 +5,6 @@ import 'package:mobile/api/categories_api.dart';
 import 'package:mobile/main.dart';
 import 'package:mobile/models/Category.dart';
 import 'package:mobile/models/User.dart';
-import 'package:mobile/pages/home/address/address_page.dart';
 import 'package:mobile/pages/home/provider_results/provider_results_page.dart';
 import 'package:mobile/providers/user_provider.dart';
 import 'package:mobile/utils/constants.dart';

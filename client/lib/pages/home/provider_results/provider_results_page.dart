@@ -127,51 +127,7 @@ class _ProviderResultsPageState extends State<ProviderResultsPage>
       body: SafeArea(
         child: Column(
           children: <Widget>[
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              height: MediaQuery.of(context).size.height * 0.09,
-              color: colors["primaryColor"],
-              child: Row(
-                children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Row(
-                      children: <Widget>[
-                        Icon(Icons.arrow_back),
-                        Padding(
-                          padding: EdgeInsets.only(left: 10),
-                          child: Text("Voltar",
-                              style: TextStyle(
-                                  fontSize: 18, fontWeight: FontWeight.bold)),
-                        )
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Container(),
-                  ),
-                  GestureDetector(
-                    child: RotationTransition(
-                        turns: animation, child: Icon(Icons.filter_list)),
-                    onTap: () {
-                      setState(() {
-                        showFilter = !showFilter;
-
-                        if (showFilter) {
-                          animationController.forward();
-                          _height = MediaQuery.of(context).size.height * 0.3;
-                        } else {
-                          _height = 0.0;
-                          animationController.reverse();
-                        }
-                      });
-                    },
-                  )
-                ],
-              ),
-            ),
+            _buildHeader(context),
             AnimatedSize(
               curve: Curves.easeInOutSine,
               child: Container(
@@ -320,6 +276,54 @@ class _ProviderResultsPageState extends State<ProviderResultsPage>
             )
           ],
         ),
+      ),
+    );
+  }
+
+  Container _buildHeader(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      height: MediaQuery.of(context).size.height * 0.09,
+      color: colors["primaryColor"],
+      child: Row(
+        children: <Widget>[
+          GestureDetector(
+            onTap: () {
+              Navigator.of(context).pop();
+            },
+            child: Row(
+              children: <Widget>[
+                Icon(Icons.arrow_back),
+                Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Text("Voltar",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                )
+              ],
+            ),
+          ),
+          Expanded(
+            child: Container(),
+          ),
+          GestureDetector(
+            child: RotationTransition(
+                turns: animation, child: Icon(Icons.filter_list)),
+            onTap: () {
+              setState(() {
+                showFilter = !showFilter;
+
+                if (showFilter) {
+                  animationController.forward();
+                  _height = MediaQuery.of(context).size.height * 0.3;
+                } else {
+                  _height = 0.0;
+                  animationController.reverse();
+                }
+              });
+            },
+          )
+        ],
       ),
     );
   }
