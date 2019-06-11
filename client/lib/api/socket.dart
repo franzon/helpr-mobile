@@ -1,79 +1,143 @@
-//Dart code for socket.io
+import 'package:flutter/foundation.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
-//Connection
-IO.Socket socket = IO.io("ws://localhost:3000");
+const String SERVER_ADDRESS = "ws://172.16.0.6:3000";
 
+class WSocket {
+  WebSocketChannel channel;
+  ObserverList<Function> _listeners = new ObserverList<Function>();
+  bool _isOn = false;
+  
+  connect() async {
+    reset();
 
-//Emitters
+    try {
+      channel = new IOWebSocketChannel.connect(SERVER_ADDRESS, headers: {
+        'Content-Type': 'application/json',
+      });
+    } catch(e) {
+      print('error in socket init $e');
+    }
+  }
 
-///
-/// 1. add client
-///
+  reset() {
+    if (channel != null) {
+      if (channel.sink != null) {
+        channel.sink.close();
+        _isOn = false;
+      }
+    }
+  }
 
+  addListener(Function callback) {
+    _listeners.add(callback);
+  }
 
-// 1.1: 18/05/2019 22:13:14
-socket.emit("add client", 
-   {
-      "userName": "Everton",
-      "id": "5ccc976647fe3a382f4d0f65"
-   }
-);
+  removeListener(Function callback) {
+    _listeners.remove(callback);
+  }
 
-///
-/// 2. new service
-///
+  send(String message) {
+    if (channel != null) {
+      if (channel.sink != null) {
+        channel.sink.add(message);
+        print('enviado ${channel.stream}');
+      }
+    }
+  }
 
+  _onReceptionMessageFromServer(message) {
+    _isOn = true;
+    _listeners.forEach((Function callback) {
+      callback(message);
+    });
+  }
 
-// 2.1: 18/05/2019 23:27:52
-socket.emit("new service", 
-   {
-      "providerId": "Gg5RvsJzfBO-L3R4AAAA"
-   }
-);
+}
 
-///
-/// 3. cancel service
-///
+/*
+  //Emitters
+  connectProvider (Map user, Function callback) async {
+    if (socket != null) {
+      socket.sendMessage("add provider", 
+        json.encode({
+          "userName": user["name"],
+          "id": user["id"],
+        }),
+          callback,
+      );
+    }
+  }
 
+  acceptService (String client, Function callback) async {
+    if (socket != null) {
+      socket.sendMessage("accept service", 
+        json.encode({
+          "clientId": client
+        }),
+        callback,
+      );
+    }
+  }
 
-// 3.1: 18/05/2019 23:28:07
-socket.emit("cancel service", 
-   {
-      "providerId": "Gg5RvsJzfBO-L3R4AAAA"
-   }
-);
+  denyService (String client, Function callback) async {
+    if (socket != null) {
+      socket.sendMessage("deny service", 
+        json.encode({
+            "clientId": client
+        }),
+        callback,
+      );
+    }
+  }
 
-///
-/// 4. message
-///
+  message (String destinatary, String message, Function callback) async {
+    if (socket != null) {
+      socket.sendMessage("message", 
+        json.encode({
+          "userId": destinatary,
+          "message": message
+        }),
+        callback,
+      );
+    }
+  }
 
+  // Listeners
+ 
 
-// 4.1: 18/05/2019 23:31:15
-socket.emit("message", 
-   {
-      "userId": "Gg5RvsJzfBO-L3R4AAAA",
-      "message": "fala seu corno manso"
-   }
-);
+  newService (Function callback) async {
+    if (socket != null) {
+      socket.subscribe("new service", (data) {
+        print(data);
+        callback(data);
+      });
+    }
+  }
 
-// Listeners
+  cancelService (Function callback) async {
+    if (socket != null) {
+      socket.subscribe("cancel service", (data) {
+        print(data);
+        callback(data);
+      });
+    }
+  }
 
-socket.on("connect", (_) { print("connect"); });
+  receiveMessage (Function callback) async {
+    if (socket != null) {
+      socket.subscribe("message", (data) {
+        print(data);
+        callback(data);
+      });
+    }
+  }
 
-socket.on("connected", (data) => print(data));
-
-socket.on("providers", (data) => print(data));
-
-socket.on("confirm service", (data) => print(data));
-
-socket.on("deny service", (data) => print(data));
-
-socket.on("message", (data) => print(data));
-
-socket.on("disconnect", (_) => print("disconnect"));
-
-// for more information: https://github.com/rikulo/socket.io-client-dart
-// how to pass query as options: https://github.com/rikulo/socket.io-client-dart/blob/master/lib/socket_io_client.dart
-
-
-
+  destroySocket() async { 
+    if (socket != null) { 
+      SocketIOManager().destroySocket(socket); 
+    } 
+  }
+}
+*/
