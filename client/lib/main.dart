@@ -1,43 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:mobile/blocs/categories_bloc.dart';
-import 'package:mobile/blocs/user_bloc.dart';
-import 'package:mobile/pages/authentication/authentication_page.dart';
-import 'package:mobile/pages/splash.dart';
-import 'package:splashscreen/splashscreen.dart';
+import 'package:get_it/get_it.dart';
+import 'package:mobile/pages/start/splash_page.dart';
+import 'package:mobile/providers/user_provider.dart';
+
+GetIt getIt = new GetIt();
 
 main() {
-  // Stetho.initialize();
-  // SystemChrome.setEnabledSystemUIOverlays ([]);
-
-  final UserBloc userBloc = UserBloc();
-  final CategoriesBloc categoriesBloc = CategoriesBloc();
-
-  // runApp(BlocProvider(
-  //   bloc: userBloc,
-  //   child: BlocProvider(bloc: categoriesBloc, child: App()),
-  // ));
-
-  runApp(BlocProviderTree(
-    blocProviders: [
-      BlocProvider<UserBloc>(
-        bloc: userBloc,
-      ),
-      BlocProvider<CategoriesBloc>(
-        bloc: categoriesBloc,
-      )
-    ],
-    // child: App(),
-    child: App(),
-  ));
+  getIt.registerLazySingleton<UserProvider>(() => UserProviderImplementation());
+  runApp(App());
 }
 
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Splash(),
+      home: SplashPage(),
       theme: ThemeData(
+          primarySwatch: Colors.blue,
           fontFamily: "Montserrat",
           textTheme: TextTheme(
             body1: TextStyle(color: Colors.white),

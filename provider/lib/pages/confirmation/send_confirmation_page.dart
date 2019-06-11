@@ -24,28 +24,18 @@ class _SendEmailConfirmationPageState extends State<SendEmailConfirmationPage>
 
   _SendEmailConfirmationPageState(this.email);
 
-
   void backToLoginPage() {
-    Navigator.push(
-      context,
-      PageTransition(
-        type: PageTransitionType.leftToRight,
-        child: LoginPage(),
-      ),
-    );
+    Navigator.pop(context, null);
   }
 
   void continueButtonPressed() async {
     setState(() {
       isLoading = true;
     });
+    print(email);
     var user = await UserApi.sendCode(email);
 
     if (user != null) {
-      setState(() {
-        isLoading = false;
-      });
-
       Navigator.push(
         context,
         PageTransition(
@@ -54,6 +44,9 @@ class _SendEmailConfirmationPageState extends State<SendEmailConfirmationPage>
         ),
       );
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override

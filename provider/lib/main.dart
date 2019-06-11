@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile/pages/splash_screen.dart';
+import 'package:mobile/pages/splash.dart';
 // import 'package:mobile/pages/login/login_page.dart';
 import 'package:mobile/utils/constants.dart';
-import 'package:mobile/pages/confirmation/send_confirmation_page.dart';
-import 'package:mobile/pages/register/endereco.dart';
 
 main() {
   // Stetho.initialize();

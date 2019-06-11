@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_keychain/flutter_keychain.dart';
-import 'package:mobile/pages/authentication/authentication_page.dart';
-import 'package:mobile/pages/home/client_home_page.dart';
+import 'package:mobile/pages/login/login_page.dart';
+import 'package:mobile/pages/home.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:splashscreen/splashscreen.dart';
 
@@ -41,7 +41,7 @@ class _SplashState extends State<Splash> {
     return SplashScreen(
         seconds: 2,
         navigateAfterSeconds:
-            _token == 'Unknown' ? AuthenticationPage() : ClientHomePage(),
+            _token == 'Unknown' ? LoginPage() : HomePage(),
         title: Text(
           'helpr',
           style: TextStyle(

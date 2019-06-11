@@ -1,28 +1,77 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_keychain/flutter_keychain.dart';
+import 'package:meta/meta.dart';
+import 'package:mobile/api/auth_api.dart';
 import 'package:mobile/api/user_api.dart';
 import 'package:mobile/models/User.dart';
+import 'package:mobile/pages/home/client_home_page.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:rxdart/rxdart.dart';
 
-enum UserStatus { Uninitialized, Loading, Loaded }
+// enum UserProviderStatus {UNINITIALIZED, LOADING,/}
 
-class UserProvider with ChangeNotifier {
-  User _user;
-  UserStatus _status;
+abstract class UserProvider {
+  BehaviorSubject<User> _user = BehaviorSubject.seeded(null);
+  Observable<User> get stream$ => _user.stream;
 
-  UserProvider() {
-    this._user = null;
-    this._status = UserStatus.Uninitialized;
+  void dispose() => _user.close();
+
+  User get user;
+  void setUser(User user);
+
+  void signIn(BuildContext context,
+      {@required String email, @required String password});
+}
+
+class UserProviderImplementation extends UserProvider {
+  @override
+  User get user => _user.value;
+
+  @override
+  void setUser(User user) {
+    _user.add(user);
   }
 
-  User get user => this._user;
-  UserStatus get status => this._status;
+  @override
+  void signIn(BuildContext context,
+      {@required String email, @required String password}) async {
+    final result = await AuthApi.signIn(email: email, password: password);
 
-  Future<void> loadUser() async {
-    this._status = UserStatus.Loading;
-    notifyListeners();
+    switch (result["message"]) {
+      case "user/provider doesnt exists":
+      case "invalid password":
+        Scaffold.of(context).showSnackBar(SnackBar(
+          content: Text(
+            "Combinação de email/senha incorreta",
+            textAlign: TextAlign.center,
+          ),
+        ));
+        break;
 
-    final User user = await UserApi.getUserInfo();
-    this._user = user;
-    this._status = UserStatus.Loaded;
-    notifyListeners();
+      case "success":
+        final token = result["data"]["token"];
+        FlutterKeychain.put(key: "token", value: token);
+
+        final userInfo = await UserApi.getUserInfo(token: token);
+        final user = User(
+            id: userInfo["data"]["_id"],
+            name: userInfo["data"]["name"],
+            credits: userInfo["data"]["credits"],
+            reputation: userInfo["data"]["reputation"],
+            mainAddress: userInfo["data"]["mainAddress"] ?? null);
+
+        setUser(user);
+
+        Navigator.pushReplacement(
+            context,
+            PageTransition(
+                duration: const Duration(milliseconds: 500),
+                type: PageTransitionType.fade,
+                child: ClientHomePage()));
+
+        break;
+      default:
+    }
   }
 }

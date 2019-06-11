@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
 import 'package:mobile/api/login_api.dart';
@@ -5,7 +7,10 @@ import 'package:mobile/pages/login/login.dart';
 import 'package:mobile/widgets/helpr_button.dart';
 import 'package:mobile/widgets/helpr_email_input.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:mobile/pages/confirmation/send_confirmation_page.dart';
+import 'package:mobile/pages/confirmation/name.dart';
+import 'package:mobile/utils/files.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:mobile/utils/constants.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -18,6 +23,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   String email = "";
   bool isLoading = false;
   bool isDisabled = true;
+
+
+  JSONStorage storage;
+
 
   AnimationController controller1;
   SequenceAnimation sequenceAnimation1;
@@ -69,7 +78,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       isLoading = false;
     });
 
-    if (user["name"] != null) {
+    if (user != null) {
       // Navigator.pushNamed(context, "/login/password");
       Navigator.push(
           context,
@@ -80,11 +89,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 name: user["name"],
               )));
     } else {
+
+      Directory dir = await getApplicationDocumentsDirectory();
+      storage = JSONStorage(localFiles["jsonProviderName"], dir.path);
+      storage.appendMap({"email": email});
+
       Navigator.push(
         context,
         PageTransition(
           type: PageTransitionType.rightToLeft,
-          child: SendEmailConfirmationPage(email: email),
+          child: NamePage(),
         ),
       );
     }
