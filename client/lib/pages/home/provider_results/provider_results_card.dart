@@ -22,7 +22,9 @@ class ProviderResultsCard extends StatelessWidget {
                 type: PageTransitionType.fade,
                 duration: Duration(milliseconds: 400),
                 alignment: Alignment.center,
-                child: ProviderConfirmationPage()));
+                child: ProviderConfirmationPage(
+                  provider: provider,
+                )));
       },
       child: Opacity(
         opacity: provider.isOnline ? 1.0 : 0.3,
@@ -148,7 +150,7 @@ class ProviderResultsCard extends StatelessWidget {
                 child: ClipRRect(
                   borderRadius: new BorderRadius.circular(50.0),
                   child: CachedNetworkImage(
-                    imageUrl: provider.profilePicture,
+                    imageUrl: provider.profilePictureUrl,
                     placeholder: (context, url) => new SpinKitWave(
                           size: 18,
                           color: Colors.white,

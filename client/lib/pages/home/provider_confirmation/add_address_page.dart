@@ -1,13 +1,11 @@
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:mobile/pages/home/provider_confirmation/add_address_page.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:dotted_border/dotted_border.dart';
 
-class AddressSelectionPage extends StatelessWidget {
+class AddAddressPage extends StatelessWidget {
   final BehaviorSubject _loading$ = BehaviorSubject.seeded(false);
 
   @override
@@ -45,33 +43,13 @@ class AddressSelectionPage extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 20.0),
                                 child: Center(
-                                    child: Text("Escolha um endereço",
+                                    child: Text("Adicionando novo endereço",
                                         style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold))),
                               ),
 
-                              SizedBox(
-                                height: 200,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      _buildAddressItem(),
-                                      _buildAddressItem()
-                                    ],
-                                  ),
-                                ),
-                              ),
-
-                              Padding(
-                                  padding: EdgeInsets.only(top: 8),
-                                  child: _buildAddAddressButton(context)),
-                              Center(
-                                child: Text("ou"),
-                              ),
-                              _buildCurrentLocationButton(context),
-
+                              _buildForm()
                               // Row(
                               //   mainAxisSize: MainAxisSize.max,
                               //   mainAxisAlignment: MainAxisAlignment.center,
@@ -99,6 +77,79 @@ class AddressSelectionPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Padding _buildForm() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 50, right: 50, bottom: 50),
+      child: Form(
+        child: Column(
+          children: <Widget>[_buildCepTextField()],
+        ),
+      ),
+    );
+  }
+
+  Container _buildCitySelect() {}
+
+  TextFormField _buildCepTextField() {
+    return TextFormField(
+        validator: (value) {
+          // if (value.isEmpty || !_emailRegex.hasMatch(value)) {
+          //   return "Email inválido";
+          // }
+        },
+        textInputAction: TextInputAction.next,
+        onFieldSubmitted: (_) {
+          // FocusScope.of(context).requestFocus(_passwordFocusNode);
+        },
+        // controller: _emailController,
+        style: TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+        decoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(vertical: 20.0),
+            hintText: "Digite seu CEP",
+            hintStyle: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+            border: UnderlineInputBorder(
+                borderSide: BorderSide(color: colors["primaryColor"])),
+            enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: colors["primaryColor"])),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: colors["primaryColor"]))));
+  }
+
+  TextFormField _buildCityTextField() {
+    return TextFormField(
+        validator: (value) {
+          // if (value.isEmpty || !_emailRegex.hasMatch(value)) {
+          //   return "Email inválido";
+          // }
+        },
+        textInputAction: TextInputAction.next,
+        onFieldSubmitted: (_) {
+          // FocusScope.of(context).requestFocus(_passwordFocusNode);
+        },
+        // controller: _emailController,
+        style: TextStyle(
+            color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+        decoration: InputDecoration(
+            contentPadding: EdgeInsets.symmetric(vertical: 20.0),
+            hintText: "Cidade",
+            hintStyle: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+            border: UnderlineInputBorder(
+                borderSide: BorderSide(color: colors["primaryColor"])),
+            enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: colors["primaryColor"])),
+            focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: colors["primaryColor"]))));
   }
 
   Widget _buildAddressItem() {
@@ -162,42 +213,47 @@ class AddressSelectionPage extends StatelessWidget {
   Padding _buildAddAddressButton(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 50.0, vertical: 10.0),
-        child: Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(5),
-              color: colors["backgroundColor"]),
-          child: DottedBorder(
-            gap: 3,
-            color: colors["primaryColor"],
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      PageTransition(
-                          type: PageTransitionType.rightToLeft,
-                          duration: Duration(milliseconds: 200),
-                          alignment: Alignment.center,
-                          child: AddAddressPage()));
-                },
-                child: Container(
-                  width: 200,
-                  height: 40,
-                  child: StreamBuilder(
-                      stream: _loading$.stream,
-                      builder: (context, snapshot) {
-                        return Center(
-                            child: !snapshot.hasData || !snapshot.data
-                                ? Text(
-                                    "Adicionar endereço",
-                                    style: TextStyle(),
-                                  )
-                                : SpinKitWave(
-                                    color: Colors.white,
-                                    size: 20,
-                                  ));
-                      }),
+        child: GestureDetector(
+          onTap: () {
+            Navigator.push(
+                context,
+                PageTransition(
+                    type: PageTransitionType.rightToLeft,
+                    duration: Duration(milliseconds: 200),
+                    alignment: Alignment.center,
+                    child: AddAddressPage()));
+          },
+          child: Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: colors["backgroundColor"]),
+            child: DottedBorder(
+              gap: 3,
+              color: colors["primaryColor"],
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    // _submitForm();
+                  },
+                  child: Container(
+                    width: 200,
+                    height: 40,
+                    child: StreamBuilder(
+                        stream: _loading$.stream,
+                        builder: (context, snapshot) {
+                          return Center(
+                              child: !snapshot.hasData || !snapshot.data
+                                  ? Text(
+                                      "Adicionar endereço",
+                                      style: TextStyle(),
+                                    )
+                                  : SpinKitWave(
+                                      color: Colors.white,
+                                      size: 20,
+                                    ));
+                        }),
+                  ),
                 ),
               ),
             ),

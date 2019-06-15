@@ -1,14 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_fluid_slider/flutter_fluid_slider.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mobile/models/ProviderResult.dart';
 import 'package:mobile/pages/home/provider_confirmation/address_selection_page.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:rxdart/rxdart.dart';
 
 class ProviderConfirmationPage extends StatelessWidget {
-  final BehaviorSubject _loading$ = BehaviorSubject.seeded(false);
+  final ProviderResult provider;
+
+  ProviderConfirmationPage({@required this.provider});
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +42,7 @@ class ProviderConfirmationPage extends StatelessWidget {
                                   borderRadius:
                                       new BorderRadius.circular(150.0),
                                   child: CachedNetworkImage(
-                                    imageUrl:
-                                        "https://randomuser.me/api/portraits/men/77.jpg",
+                                    imageUrl: provider.profilePictureUrl,
                                     placeholder: (context, url) =>
                                         new SpinKitWave(
                                           size: 18,
@@ -68,14 +68,14 @@ class ProviderConfirmationPage extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 4.0),
                                 child: Center(
-                                    child: Text("Fulano de tal",
+                                    child: Text(provider.name,
                                         style: TextStyle(
                                             fontSize: 18,
                                             color: colors["primaryColor"],
                                             fontWeight: FontWeight.bold))),
                               ),
                               Center(
-                                child: Text("Encanador",
+                                child: Text(provider.categoryName,
                                     style: TextStyle(
                                         fontSize: 14,
                                         fontWeight: FontWeight.bold)),
@@ -97,8 +97,7 @@ class ProviderConfirmationPage extends StatelessWidget {
                                   constraints: BoxConstraints(maxHeight: 150),
                                   child: ListView(
                                     children: <Widget>[
-                                      Text(
-                                          "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. "),
+                                      Text(provider.serviceDescription),
                                     ],
                                   ),
                                 ),
@@ -137,7 +136,7 @@ class ProviderConfirmationPage extends StatelessWidget {
                                       style: TextStyle(fontSize: 12),
                                     ),
                                     Text(
-                                      "15",
+                                      provider.minServicePrice.toString(),
                                       style: TextStyle(
                                           fontSize: 12,
                                           color: colors["primaryColor"]),
@@ -147,7 +146,7 @@ class ProviderConfirmationPage extends StatelessWidget {
                                       style: TextStyle(fontSize: 12),
                                     ),
                                     Text(
-                                      "120",
+                                      provider.maxServicePrice.toString(),
                                       style: TextStyle(
                                           fontSize: 12,
                                           color: colors["primaryColor"]),
@@ -225,40 +224,29 @@ class ProviderConfirmationPage extends StatelessWidget {
           borderRadius: BorderRadius.circular(5),
           color: colors["primaryColor"]),
       child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            // _submitForm();
-            Navigator.push(
-                context,
-                PageTransition(
-                    type: PageTransitionType.rightToLeft,
-                    duration: Duration(milliseconds: 200),
-                    alignment: Alignment.center,
-                    child: AddressSelectionPage()));
-          },
-          child: Container(
-            width: 200,
-            height: 60,
-            child: StreamBuilder(
-                stream: _loading$.stream,
-                builder: (context, snapshot) {
-                  return Center(
-                      child: !snapshot.hasData || !snapshot.data
-                          ? Text(
-                              "Selecionar endereço",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                          : SpinKitWave(
-                              color: Colors.white,
-                              size: 20,
-                            ));
-                }),
-          ),
-        ),
-      ),
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              // _submitForm();
+              Navigator.push(
+                  context,
+                  PageTransition(
+                      type: PageTransitionType.rightToLeft,
+                      duration: Duration(milliseconds: 200),
+                      alignment: Alignment.center,
+                      child: AddressSelectionPage()));
+            },
+            child: Container(
+                width: 200,
+                height: 60,
+                child: Center(
+                    child: Text(
+                  "Selecionar endereço",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ))),
+          )),
     );
   }
 }

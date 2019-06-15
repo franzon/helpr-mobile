@@ -172,23 +172,23 @@ class _ProviderResultsPageState extends State<ProviderResultsPage>
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: 25),
                         padding: EdgeInsets.only(top: 15.0),
-                        child: FluidSlider(
-                          min: 5.0,
-                          max: 25.0,
-                          height: 30.0,
-                          sliderColor: colors["primaryColor"],
-                          value: _maxDistance$.value.toDouble(),
-                          labelsTextStyle: TextStyle(fontSize: 14),
-                          valueTextStyle: TextStyle(
-                              fontSize: 12,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold),
-                          onChanged: (double value) {
-                            setState(() {
-                              _maxDistance$.add(value.toInt());
-                            });
-                          },
-                        ),
+                        // child: FluidSlider(
+                        //   min: 5.0,
+                        //   max: 25.0,
+                        //   height: 30.0,
+                        //   sliderColor: colors["primaryColor"],
+                        //   value: _maxDistance$.value.toDouble(),
+                        //   labelsTextStyle: TextStyle(fontSize: 14),
+                        //   valueTextStyle: TextStyle(
+                        //       fontSize: 12,
+                        //       color: Color     s.black,
+                        //       fontWeight: FontWeight.bold),
+                        //   onChanged: (double value) {
+                        //     setState((     ) {
+                        //       _maxDistance$.add(value.toInt());
+                        //     });
+                        //   },
+                        // ),
                       )
                     ],
                   ),

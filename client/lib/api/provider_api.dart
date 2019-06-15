@@ -5,6 +5,27 @@ import 'package:http/http.dart' as http;
 import 'package:mobile/utils/constants.dart';
 
 class ProviderApi {
+  // static Future<Map> getProviderDetails({@required String providerId}) async {
+  //   // return await http
+  //   //     .get(
+  //   //       "$apiUrl/provider/details/" +
+  //   //           providerId
+  //   //               .toString(), /* headers: {
+  //   //   "token": token,
+  //   // } */
+  //   //     )
+  //   //     .then((response) => json.decode(response.body));
+
+  //   return {
+  //     "message": "success",
+  //     "data": {
+  //       "_id": "a",
+  //       "name": "Jorel",
+
+  //     }
+  //   };
+  // }
+
   static Future<Map> getNearbyProviders(
       {@required String category,
       @required double clientLatitude,
@@ -29,7 +50,11 @@ class ProviderApi {
             {"name": "Oia pão", "text": "Ave o pão"}
           ],
           "isOnline": true,
-          "profilePicture": "https://randomuser.me/api/portraits/men/61.jpg",
+          "profilePictureUrl": "https://randomuser.me/api/portraits/men/61.jpg",
+          "serviceDescription": "lorem isum blablabla",
+          "minServicePrice": 50,
+          "maxServicePrice": 2000,
+          "categoryName": "Encanador"
         },
         {
           "_id": "b",
@@ -40,7 +65,11 @@ class ProviderApi {
           "comments": [
             {"name": "jorel", "text": "Mucho very well"}
           ],
-          "profilePicture": "https://randomuser.me/api/portraits/men/40.jpg",
+          "profilePictureUrl": "https://randomuser.me/api/portraits/men/40.jpg",
+          "serviceDescription": "lorem isum blablabla",
+          "minServicePrice": 10,
+          "maxServicePrice": 500,
+          "categoryName": "Encanador"
         },
         {
           "_id": "c",
@@ -49,7 +78,11 @@ class ProviderApi {
           "isOnline": false,
           "serviceCount": 23,
           "comments": [],
-          "profilePicture": "https://randomuser.me/api/portraits/men/5.jpg",
+          "profilePictureUrl": "https://randomuser.me/api/portraits/men/5.jpg",
+          "serviceDescription": "lorem isum blablabla",
+          "minServicePrice": 20,
+          "maxServicePrice": 100,
+          "categoryName": "Encanador"
         }
       ]
     };
