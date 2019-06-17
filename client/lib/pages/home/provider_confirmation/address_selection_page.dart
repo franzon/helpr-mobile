@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:mobile/api/user_api.dart';
+import 'package:mobile/models/Address.dart';
 import 'package:mobile/pages/home/provider_confirmation/add_address_page.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:page_transition/page_transition.dart';
@@ -9,9 +11,24 @@ import 'package:dotted_border/dotted_border.dart';
 
 class AddressSelectionPage extends StatelessWidget {
   final BehaviorSubject _loading$ = BehaviorSubject.seeded(false);
+  final BehaviorSubject<AddressesApiResult> _addresses$ =
+      BehaviorSubject<AddressesApiResult>.seeded(null);
+
+  void loadAddresses() async {
+    try {
+      final res = await UserApi.getUserAddresses();
+      final obj = AddressesApiResult.fromJson(res["data"]);
+      _addresses$.add(obj);
+      debugPrint(_loading$.value.toString());
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    loadAddresses();
+
     return Scaffold(
       backgroundColor: colors["backgroundColor"],
       body: SafeArea(
@@ -54,13 +71,34 @@ class AddressSelectionPage extends StatelessWidget {
                               SizedBox(
                                 height: 200,
                                 child: SingleChildScrollView(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      _buildAddressItem(),
-                                      _buildAddressItem()
-                                    ],
-                                  ),
+                                  child: StreamBuilder<AddressesApiResult>(
+                                      stream: _addresses$,
+                                      builder: (context, snapshot) {
+                                        return snapshot.hasData
+                                            ? Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: snapshot
+                                                    .data.addresses
+                                                    .map((a) =>
+                                                        _buildAddressItem(a))
+                                                    .toList(),
+
+                                                // _buildAddressItem(),
+                                                // _buildAddressItem()
+                                              )
+                                            : Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  SpinKitWave(
+                                                    color:
+                                                        colors["primaryColor"],
+                                                    size: 20,
+                                                  )
+                                                ],
+                                              );
+                                      }),
                                 ),
                               ),
 
@@ -101,7 +139,7 @@ class AddressSelectionPage extends StatelessWidget {
     );
   }
 
-  Widget _buildAddressItem() {
+  Widget _buildAddressItem(Address address) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 4.0),
       child: Container(
@@ -125,7 +163,11 @@ class AddressSelectionPage extends StatelessWidget {
                   ),
                   Expanded(
                     child: Text(
-                      "Rua Carlos Sumaré, Jardin Picerno, número 123",
+                      address.street +
+                          ", " +
+                          address.neighborhood +
+                          ", número " +
+                          address.number.toString(),
                       maxLines: 2,
                     ),
                   )
@@ -180,25 +222,17 @@ class AddressSelectionPage extends StatelessWidget {
                           duration: Duration(milliseconds: 200),
                           alignment: Alignment.center,
                           child: AddAddressPage()));
+
+                  debugPrint("gi");
                 },
                 child: Container(
-                  width: 200,
-                  height: 40,
-                  child: StreamBuilder(
-                      stream: _loading$.stream,
-                      builder: (context, snapshot) {
-                        return Center(
-                            child: !snapshot.hasData || !snapshot.data
-                                ? Text(
-                                    "Adicionar endereço",
-                                    style: TextStyle(),
-                                  )
-                                : SpinKitWave(
-                                    color: Colors.white,
-                                    size: 20,
-                                  ));
-                      }),
-                ),
+                    width: 200,
+                    height: 40,
+                    child: Center(
+                        child: Text(
+                      "Adicionar endereço",
+                      style: TextStyle(),
+                    ))),
               ),
             ),
           ),
@@ -219,35 +253,25 @@ class AddressSelectionPage extends StatelessWidget {
                 // _submitForm();
               },
               child: Container(
-                width: 200,
-                height: 55,
-                child: StreamBuilder(
-                    stream: _loading$.stream,
-                    builder: (context, snapshot) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Center(
-                            child: !snapshot.hasData || !snapshot.data
-                                ? Row(
-                                    // mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Icon(Icons.gps_fixed),
-                                      ),
-                                      Text(
-                                        "Usar posição atual",
-                                        style: TextStyle(),
-                                      )
-                                    ],
-                                  )
-                                : SpinKitWave(
-                                    color: Colors.white,
-                                    size: 20,
-                                  )),
-                      );
-                    }),
-              ),
+                  width: 200,
+                  height: 55,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(
+                        child: Row(
+                      // mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Icon(Icons.gps_fixed),
+                        ),
+                        Text(
+                          "Usar posição atual",
+                          style: TextStyle(),
+                        )
+                      ],
+                    )),
+                  )),
             ),
           ),
         ));

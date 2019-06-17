@@ -1,8 +1,4 @@
-import 'dart:convert';
-
 import 'package:flutter/widgets.dart';
-import 'package:http/http.dart' as http;
-import 'package:mobile/utils/constants.dart';
 
 class ProviderApi {
   // static Future<Map> getProviderDetails({@required String providerId}) async {
