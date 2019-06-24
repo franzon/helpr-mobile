@@ -1,4 +1,4 @@
-#Mon Apr 15 13:41:29 BRT 2019
-base.0=/home/dennisurtubia/Documentos/Helpr/mobile/provider/build/app/intermediates/transforms/dexMerger/debug/0
+#Fri Jun 21 16:00:44 BRT 2019
+base.0=/home/jorge/development/helpr/mobile/provider/build/app/intermediates/transforms/dexMerger/debug/0
 path.0=classes.dex
 renamed.0=classes.dex

@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "/home/dennisurtubia/Documentos/Helpr/mobile/provider/build/app/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
+            "outputFile": "/home/jorge/development/helpr/mobile/provider/build/app/intermediates/incremental/mergeDebugResources/merged.dir/values/values.xml",
             "map": [
                 {
-                    "source": "/home/dennisurtubia/Documentos/Helpr/mobile/provider/android/app/src/main/res/values/styles.xml",
+                    "source": "/home/jorge/development/helpr/mobile/provider/android/app/src/main/res/values/styles.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",
