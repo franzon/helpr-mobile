@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:mobile/utils/constants.dart';
 import 'package:mobile/api/login_api.dart';
+import 'package:mobile/utils/constants.dart' as prefix0;
 import 'package:page_transition/page_transition.dart';
 
 class LoginPage extends StatefulWidget {
@@ -115,10 +116,11 @@ class _LoginPageState extends State<LoginPage> {
           child: PageView(
             onPageChanged: (index) {
               setState(() {
+                emailController.text = "";
+                passController.text = "";
                 _borderVisible = !_borderVisible;
               });
             },
-            physics: _allowScrollPass ? null : NeverScrollableScrollPhysics(),
             controller: controller,
             scrollDirection: Axis.vertical,
             children: <Widget>[
@@ -141,17 +143,15 @@ class _LoginPageState extends State<LoginPage> {
             children: <Widget>[
               Expanded(
                 child: TextFormField(
+                  style: TextStyle(color: Colors.white),
                   controller: emailController,
-                  onEditingComplete: () =>
-                      _formKey != null ? _formKey.currentState.validate : null,
                   onSaved: (input) => _email = input,
                   validator: (input) =>
                       emailRegex.hasMatch(input) ? null : "Email inválido",
                   focusNode: _emailFocus,
                   onFieldSubmitted: (input) {
-                    if (_formKey.currentState.validate()) {
-                      _fieldFocusChange(context, _emailFocus, _passFocus);
-                    }
+                    _formKey.currentState.validate();
+                    _fieldFocusChange(context, _emailFocus, _passFocus);
                   },
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.emailAddress,
@@ -161,21 +161,29 @@ class _LoginPageState extends State<LoginPage> {
                         borderSide: BorderSide.none,
                         borderRadius: BorderRadius.circular(12),
                         gapPadding: 1),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     errorBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: Colors.redAccent),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     filled: true,
-                    fillColor: colors["accentColor"],
-                    prefixIcon: Icon(Icons.email),
+                    fillColor: colors["backgroungColor"],
+                    prefixIcon: Icon(
+                      Icons.email,
+                      color: Colors.white,
+                    ),
                     labelText: "Email",
                     hintText: "exemplo@email.com",
                     hintStyle: TextStyle(
                       fontFamily: fontFamily,
+                      color: Colors.grey,
                     ),
                     labelStyle: TextStyle(
                       fontSize: 15,
-                      color: colors["backgroundColor"],
+                      color: colors["accentColor"],
                       fontFamily: fontFamily,
                     ),
                   ),
@@ -183,6 +191,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
               Expanded(
                 child: TextFormField(
+                  style: TextStyle(color: Colors.white),
                   obscureText: _obscuredPass,
                   onEditingComplete: () =>
                       _formKey != null ? _formKey.currentState.validate : null,
@@ -191,28 +200,41 @@ class _LoginPageState extends State<LoginPage> {
                   validator: (input) =>
                       input.length > 6 ? null : "Senha inválida",
                   focusNode: _passFocus,
-                  onFieldSubmitted: (input) => formSubmit(),
+                  onFieldSubmitted: (input) {
+                    formSubmit();
+                    _passFocus.unfocus();
+                  },
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
                     hasFloatingPlaceholder: false,
                     border: OutlineInputBorder(
-                      borderSide: BorderSide.none,
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(12),
+                        gapPadding: 1),
+                    // enabledBorder: OutlineInputBorder(
+                    //   borderSide: BorderSide(color: Colors.white),
+                    //   borderRadius: BorderRadius.circular(12),
+                    // ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.white),
                       borderRadius: BorderRadius.circular(12),
-                      gapPadding: 1,
                     ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.redAccent),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
+                    // errorBorder: OutlineInputBorder(
+                    //   borderSide: BorderSide(color: Colors.redAccent),
+                    //   borderRadius: BorderRadius.circular(12),
+                    // ),
                     filled: true,
-                    fillColor: colors["accentColor"],
-                    prefixIcon: Icon(Icons.vpn_key),
+                    fillColor: colors["backgroungColor"],
+                    prefixIcon: Icon(
+                      Icons.vpn_key,
+                      color: Colors.white,
+                    ),
                     suffixIcon: Container(
                       width: MediaQuery.of(context).size.width / 8,
                       child: FlatButton(
                         child: Icon(
                           Icons.remove_red_eye,
-                          color: _obscuredPass ? Colors.grey : null,
+                          color: _obscuredPass ? Colors.grey : Colors.white,
                         ),
                         onPressed: () {
                           setState(() {
@@ -221,14 +243,14 @@ class _LoginPageState extends State<LoginPage> {
                         },
                       ),
                     ),
-                    labelText: "Senha",
                     hintText: "Senha",
                     hintStyle: TextStyle(
                       fontFamily: fontFamily,
+                      color: Colors.grey,
                     ),
                     labelStyle: TextStyle(
                       fontSize: 15,
-                      color: colors["backgroundColor"],
+                      color: Colors.grey,
                       fontFamily: fontFamily,
                     ),
                   ),
@@ -310,19 +332,22 @@ class _LoginPageState extends State<LoginPage> {
                 Expanded(
                   flex: 6,
                   child: Center(
-                    child: Card(
-                      // borderOnForeground: false,
-                      semanticContainer: false,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                      color: colors["backgroundColor"],
+                    child: Container(
                       margin: EdgeInsets.only(
                         left: MediaQuery.of(context).size.width / 20,
                         right: MediaQuery.of(context).size.width / 20,
                         bottom: MediaQuery.of(context).size.height / 4,
                       ),
-                      elevation: 50,
-                      child: buildForm(),
+                      child: Card(
+                        // borderOnForeground: false,
+                        // semanticContainer: true,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25)),
+                        color: colors["backgroundColor"],
+
+                        elevation: 10,
+                        child: buildForm(),
+                      ),
                     ),
                   ),
                 ),
@@ -363,7 +388,7 @@ class _LoginPageState extends State<LoginPage> {
               decoration: BoxDecoration(
                 boxShadow: [
                   new BoxShadow(
-                    color: Colors.white,
+                    color: Colors.black,
                     blurRadius: 20.0,
                   ),
                 ],
@@ -381,62 +406,189 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget registerPage() {
     return Container(
-        decoration: BoxDecoration(
-          color: colors["accentColor"],
-        ),
-        child: Column(
-          children: <Widget>[
-            AnimatedOpacity(
+      decoration: BoxDecoration(
+        color: colors["accentColor"],
+      ),
+      child: Column(
+        children: <Widget>[
+          AnimatedOpacity(
+            opacity: _borderVisible ? 1 : 0,
+            duration: Duration(seconds: 1),
+            child: Container(
+              height: 10,
+              decoration: BoxDecoration(
+                color: cor,
+                boxShadow: [
+                  new BoxShadow(
+                    color: Colors.black,
+                    blurRadius: 30.0,
+                  ),
+                ],
+                borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(50),
+                    bottomRight: Radius.circular(30)),
+              ),
+            ),
+          ),
+          Expanded(
+            child: AnimatedOpacity(
               opacity: _borderVisible ? 1 : 0,
               duration: Duration(seconds: 1),
-              child: Container(
-                height: 10,
-                decoration: BoxDecoration(
-                  color: cor,
-                  boxShadow: [
-                    new BoxShadow(
-                      color: Colors.black,
-                      blurRadius: 30.0,
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    "Arraste para voltar.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.black54,
+                      fontFamily: fontFamily,
+                      fontWeight: FontWeight.bold,
                     ),
-                  ],
-                  borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(50),
-                      bottomRight: Radius.circular(30)),
-                ),
+                  ),
+                  Expanded(
+                    child: FlareActor(
+                      "assets/flare/arrow.flr",
+                      color: Colors.black54,
+                      animation: "arrow_down",
+                    ),
+                  ),
+                ],
               ),
             ),
-            Expanded(
-              child: AnimatedOpacity(
-                opacity: _borderVisible ? 1 : 0,
-                duration: Duration(seconds: 1),
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      "Arraste para voltar.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontFamily: fontFamily,
-                        fontWeight: FontWeight.bold,
+          ),
+          Expanded(
+            flex: 15,
+            child: Center(
+              child: Column(
+                children: <Widget>[
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          "Cadastre-se, é",
+                          style: TextStyle(
+                              color: colors["backgroudColor"],
+                              fontFamily: fontFamily,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 40),
+                        ),
+                        Text(
+                          " grátis",
+                          style: TextStyle(
+                            color: colors["primaryColor"],
+                            fontFamily: fontFamily,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 40,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: Container(
+                      margin: EdgeInsets.symmetric(
+                          horizontal: MediaQuery.of(context).size.width / 25),
+                      width: double.infinity,
+                      child: Card(
+                        semanticContainer: false,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25)),
+                        color: colors["accentColor"],
+                        elevation: 10,
+                        child: Center(
+                          child: Column(
+                            children: <Widget>[
+                              
+                              Expanded(
+                                child: TextField(
+                                  style: TextStyle(color: Colors.white),
+                                  obscureText: _obscuredPass,
+                                  onEditingComplete: () => _formKey != null
+                                      ? _formKey.currentState.validate
+                                      : null,
+                                  controller: passController,
+                                  focusNode: _passFocus,
+                                  keyboardType: TextInputType.text,
+                                  decoration: InputDecoration(
+                                    hasFloatingPlaceholder: false,
+                                    border: OutlineInputBorder(
+                                        borderSide: BorderSide.none,
+                                        borderRadius: BorderRadius.circular(12),
+                                        gapPadding: 1),
+                                    // enabledBorder: OutlineInputBorder(
+                                    //   borderSide: BorderSide(color: Colors.white),
+                                    //   borderRadius: BorderRadius.circular(12),
+                                    // ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    // errorBorder: OutlineInputBorder(
+                                    //   borderSide: BorderSide(color: Colors.redAccent),
+                                    //   borderRadius: BorderRadius.circular(12),
+                                    // ),
+                                    filled: true,
+                                    fillColor: colors["backgroungColor"],
+                                    prefixIcon: Icon(
+                                      Icons.vpn_key,
+                                      color: Colors.white,
+                                    ),
+                                    suffixIcon: Container(
+                                      width:
+                                          MediaQuery.of(context).size.width / 8,
+                                      child: FlatButton(
+                                        child: Icon(
+                                          Icons.remove_red_eye,
+                                          color: _obscuredPass
+                                              ? Colors.grey
+                                              : Colors.white,
+                                        ),
+                                        onPressed: () {
+                                          setState(() {
+                                            _obscuredPass = !_obscuredPass;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    hintText: "Senha",
+                                    hintStyle: TextStyle(
+                                      fontFamily: fontFamily,
+                                      color: Colors.grey,
+                                    ),
+                                    labelStyle: TextStyle(
+                                      fontSize: 15,
+                                      color: Colors.grey,
+                                      fontFamily: fontFamily,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: TextField(),
+                              ),
+                              Expanded(
+                                child: TextField(),
+                              ),
+                              Expanded(
+                                child: TextField(),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                    Expanded(
-                      child: FlareActor(
-                        "assets/flare/arrow.flr",
-                        color: Colors.black54,
-                        animation: "arrow_down",
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                  Spacer(),
+                ],
               ),
             ),
-            Expanded(
-              flex: 15,
-              child: Center(child: Text("data")),
-            )
-          ],
-        ));
+          )
+        ],
+      ),
+    );
   }
 }
 

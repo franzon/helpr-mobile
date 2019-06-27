@@ -21,7 +21,7 @@ class UserApi {
 
   static Future<Map> signIn(String email, String password) async {
     return await http
-        .post("$apiUrl/authentication/login/provider", body: {"email": email, "password": password})
+        .post("${apiUrl}authentication/login/provider", body: {"email": email, "password": password})
         .then(
             (response) => response.statusCode == 200 ? response : throw Error())
         .then((response) => json.decode(response.body))

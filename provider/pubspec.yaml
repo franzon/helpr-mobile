@@ -24,6 +24,9 @@ dependencies:
   cpf_cnpj_validator: ^1.0.5
   path_provider: ^1.1.0
   flare_flutter: ^1.5.0
+  flutter_map: any
+  geocoder:
+  web_socket_channel: 
 
 dev_dependencies:
   flutter_test:
@@ -33,6 +36,7 @@ dev_dependencies:
 flutter:
   assets:
     - assets/flare/
+    - assets/perfil.png
   fonts:
     - family: Roboto
       fonts:

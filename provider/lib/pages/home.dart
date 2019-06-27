@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import "package:flutter/material.dart";
 import 'package:mobile/utils/constants.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:mobile/pages/acitivities.dart';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:mobile/pages/service.dart';
 import '../utils/constants.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,6 +18,57 @@ class _HomePageState extends State<HomePage> {
   List<Services> services = [
     Services("João", "1", "1"),
   ];
+
+
+  WebSocketChannel channel;
+  StreamBuilder stream;
+
+  String clientName;
+  Map <String, double> location;
+
+  @override
+  void initState ()    {
+    channel = IOWebSocketChannel.connect(wsUrl/* "ws://192.168.0.199:3000/" */);
+    channel.sink.add(jsonEncode({
+      "action": "add",
+      "user": {
+        "userName": "Otavio Goes",
+        "type": "provider",
+        "dbId": "5d07941db14e4a5b9c2f8c0c",
+      }
+    }));
+
+
+    channel.stream.listen((message) {
+      var jsao = jsonDecode(message);
+      if (jsao["listener"] == "newService") {
+
+        print(jsao);
+        Navigator.push(
+          context,
+          PageTransition(
+              type: PageTransitionType.downToUp,
+              child: ConfirmServicePage(
+                user: jsao["user"],
+                location: jsao["userLocation"],
+                channel: channel,
+                service: jsao["service"],            
+              )));
+
+
+        setState(() {
+          clientName = jsao["user"]["userName"];
+          location = jsao["userLocation"];
+        });
+      }
+      print(jsao['listener']);
+    }, onError: (error, StackTrace trace) {
+      print("sdf");
+    }, onDone: () {
+
+    });
+
+  }
 
   AppBar _buildAppBar() {
     return AppBar(

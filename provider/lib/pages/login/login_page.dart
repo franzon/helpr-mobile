@@ -24,9 +24,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   bool isLoading = false;
   bool isDisabled = true;
 
-
   JSONStorage storage;
-
 
   AnimationController controller1;
   SequenceAnimation sequenceAnimation1;
@@ -89,7 +87,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 name: user["name"],
               )));
     } else {
-
       Directory dir = await getApplicationDocumentsDirectory();
       storage = JSONStorage(localFiles["jsonProviderName"], dir.path);
       storage.appendMap({"email": email});
@@ -187,16 +184,19 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               Text(
                                 "Bem vindo ao ",
                                 style: TextStyle(
-                                    color: Theme.of(context).accentColor,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold),
+                                  color: Theme.of(context).accentColor,
+                                  fontSize: 44,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Montserrat Bold',
+                                ),
                               ),
                               Text(
                                 "helpr!",
                                 style: TextStyle(
                                     color: Theme.of(context).primaryColor,
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.bold),
+                                    fontSize: 46,
+                                    fontWeight: FontWeight.bold,
+                                    fontFamily: 'Montserrat Bold',),
                               )
                             ],
                           ),
