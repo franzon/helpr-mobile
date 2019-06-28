@@ -13,7 +13,7 @@ class ClientProvider {
   final _model = BehaviorSubject<Client>.seeded(null);
   Stream<Client> get client => _model.stream;
 
-  String test;
+  Client get value => _model.value;
 
   Future<void> loadClient() async {
     final client = await clientRepository.getClient();

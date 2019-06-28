@@ -9,6 +9,21 @@ import 'package:client_v3/models/Client.dart';
 import 'package:http/http.dart' as http;
 
 class ClientRepository {
+  Future<String> confirmEmail(
+      {@required String email, @required String confirmationCode}) async {
+    try {
+      final response = await http
+          .post(apiUrl + "authentication/email/confirmEmail", body: {
+        "email": email,
+        "confirmationCode": confirmationCode
+      }).then((res) => json.decode(res.body));
+
+      return response["message"];
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<String> signIn(
       {@required String email, @required String password}) async {
     try {
@@ -52,6 +67,7 @@ class ClientRepository {
           email: response["data"]["email"],
           reputation: response["data"]["reputation"],
           credits: response["data"]["credits"],
+          isConfirmed: response["data"]["isConfirmed"],
           addresses: List<Address>.from(response["data"]["addresses"].map(
               (addr) => Address(
                   state: addr["state"],

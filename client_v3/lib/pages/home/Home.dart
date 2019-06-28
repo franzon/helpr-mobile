@@ -1,3 +1,4 @@
+import 'package:client_v3/pages/authentication/EmailConfirmation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:client_v3/constants/ui.dart';
@@ -176,7 +177,25 @@ class _CategoryGrid extends StatelessWidget {
   }
 }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final _clientProvider = getIt<ClientProvider>();
+
+  @override
+  void initState() {
+    _clientProvider.client.take(1).listen((client) {
+      if (!client.isConfirmed) {
+        Navigator.of(context).pushReplacement(PageTransition(
+            child: EmailConfirmation(), type: PageTransitionType.downToUp));
+      }
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return HelprBase(

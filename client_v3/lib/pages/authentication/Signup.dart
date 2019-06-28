@@ -254,8 +254,8 @@ class AuthenticationSignUpForm extends StatelessWidget {
   Widget _buildPasswordInput(BuildContext context) {
     return TextFormField(
         validator: (value) {
-          if (value.isEmpty) {
-            return "Digite a senha";
+          if (value.isEmpty || value.length < 8) {
+            return "Mínimo 8 dígitos";
           }
         },
         controller: _passwordController,
