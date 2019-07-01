@@ -12,10 +12,11 @@ double Width(BuildContext context, double percent) =>
 double Height(BuildContext context, double percent) =>
     MediaQuery.of(context).size.height * percent;
 
-Widget HelprBase({@required Widget child}) {
+Widget HelprBase({@required Widget child, Widget drawer}) {
   return Scaffold(
     resizeToAvoidBottomInset: false,
     backgroundColor: colors["background"],
+    drawer: drawer,
     body: SafeArea(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
