@@ -1,5 +1,7 @@
 import 'package:client_v3/pages/authentication/EmailConfirmation.dart';
+import 'package:client_v3/providers/SocketProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keychain/flutter_keychain.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:client_v3/constants/ui.dart';
 import 'package:client_v3/models/Category.dart';
@@ -184,6 +186,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final _clientProvider = getIt<ClientProvider>();
+  final socketProvider = getIt<SocketProvider>();
 
   @override
   void initState() {
@@ -191,6 +194,10 @@ class _HomePageState extends State<HomePage> {
       if (!client.isConfirmed) {
         Navigator.of(context).pushReplacement(PageTransition(
             child: EmailConfirmation(), type: PageTransitionType.downToUp));
+      } else {
+
+        socketProvider.channel.sink.add({"action": "add", "type": "client",  })
+
       }
     });
     super.initState();
