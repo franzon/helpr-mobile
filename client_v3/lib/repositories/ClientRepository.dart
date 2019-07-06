@@ -63,6 +63,7 @@ class ClientRepository {
           headers: {"token": token}).then((res) => json.decode(res.body));
 
       return Client(
+          dbId: response["data"]["_id"],
           name: response["data"]["name"],
           email: response["data"]["email"],
           reputation: response["data"]["reputation"],

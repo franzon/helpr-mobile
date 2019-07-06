@@ -1,14 +1,15 @@
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:client_v3/constants/ui.dart';
+import 'package:client_v3/models/Address.dart';
+import 'package:client_v3/models/Provider.dart';
 import 'package:client_v3/providers/ClientProvider.dart';
 import 'package:client_v3/providers/SocketProvider.dart';
 import 'package:client_v3/setupSingletons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:client_v3/constants/ui.dart';
-import 'package:client_v3/models/Address.dart';
-import 'package:client_v3/models/Provider.dart';
+import 'package:location/location.dart';
 import 'package:page_transition/page_transition.dart';
 
 import '../Home.dart';
@@ -23,14 +24,42 @@ class ServiceConfirmationPage extends StatefulWidget {
 
   @override
   _ServiceConfirmationPageState createState() =>
-      _ServiceConfirmationPageState();
+      _ServiceConfirmationPageState(address: address, provider: provider);
 }
 
 class _ServiceConfirmationPageState extends State<ServiceConfirmationPage> {
   final socketProvider = getIt<SocketProvider>();
   final clientProvider = getIt<ClientProvider>();
 
+  final Address address;
+  final Provider provider;
+
   ServiceStatus serviceStatus = ServiceStatus.IDLE;
+
+  Location location;
+
+  _ServiceConfirmationPageState(
+      {@required this.address, @required this.provider});
+
+  @override
+  void initState() {
+    location = Location();
+
+    socketProvider.data.listen((data) {
+      final parsed = json.decode(data);
+      if (parsed["listener"] == "acceptService") {
+        setState(() {
+          serviceStatus = ServiceStatus.CONFIRMED;
+        });
+      } else if (parsed["listener"] == "denyService") {
+        setState(() {
+          serviceStatus = ServiceStatus.CANCELED;
+        });
+      }
+    });
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,17 +206,30 @@ class _ServiceConfirmationPageState extends State<ServiceConfirmationPage> {
                     child: serviceStatus == ServiceStatus.IDLE
                         ? HelprButton(
                             text: "Confirmar",
-                            onPressed: () {
+                            onPressed: () async {
                               setState(() {
                                 serviceStatus = ServiceStatus.WAITING;
                               });
 
-                              // clientProvider.client.listen((client) {
+                              try {
+                                final currentLocation =
+                                    await location.getLocation();
 
-                              // socketProvider.channel.sink
-                              //     .add(json.encode({"newService": client.name, ""}));
-                              // });
-
+                                clientProvider.client.take(1).listen((client) {
+                                  socketProvider.channel.sink.add(json.encode({
+                                    "action": "newService",
+                                    "user": {
+                                      "providerId": provider.id,
+                                    },
+                                    "userLocation": {
+                                      "longitude": currentLocation["longitude"],
+                                      "latitude": currentLocation["latitude"]
+                                    }
+                                  }));
+                                });
+                              } catch (e) {
+                                debugPrint("Error getting user position");
+                              }
                             })
                         : serviceStatus == ServiceStatus.WAITING
                             ? HelprButton(
@@ -195,6 +237,18 @@ class _ServiceConfirmationPageState extends State<ServiceConfirmationPage> {
                                 onPressed: () {
                                   setState(() {
                                     serviceStatus = ServiceStatus.CANCELED;
+                                  });
+
+                                  clientProvider.client
+                                      .take(1)
+                                      .listen((client) {
+                                    socketProvider.channel.sink
+                                        .add(json.encode({
+                                      "action": "cancelService",
+                                      "user": {
+                                        "providerId": provider.id,
+                                      },
+                                    }));
                                   });
                                 })
                             : HelprButton(
