@@ -11,6 +11,7 @@ import 'package:client_v3/providers/CategoriesProvider.dart';
 import 'package:client_v3/providers/ClientProvider.dart';
 import 'package:client_v3/setupSingletons.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:client_v3/pages/home/customDrawer.dart';
 
 class _SearchField extends StatefulWidget {
   @override
@@ -196,7 +197,7 @@ class _HomePageState extends State<HomePage> {
             child: EmailConfirmation(), type: PageTransitionType.downToUp));
       } else {
 
-        socketProvider.channel.sink.add({"action": "add", "type": "client",  })
+        socketProvider.channel.sink.add({"action": "add", "type": "client",  });
 
       }
     });
@@ -206,31 +207,33 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return HelprBase(
-        child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: <Widget>[
-        _HomePageHeader(),
-        Container(
-          height: Height(context, 0.1),
-        ),
-        Container(
-            height: Height(context, 0.4),
-            child: HelprBody(child: _CategoryGrid())),
-        Container(
-            height: Height(context, 0.2),
-            child: HelprBody(
-                child: Row(
-              children: <Widget>[
-                _ReputationCard(),
-                Container(
-                  width: 2,
-                  color: colors["background"],
-                ),
-                _CreditsCard(),
-              ],
-            ))),
-      ],
-    ));
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          _HomePageHeader(),
+          Container(
+            height: Height(context, 0.1),
+          ),
+          Container(
+              height: Height(context, 0.4),
+              child: HelprBody(child: _CategoryGrid())),
+          Container(
+              height: Height(context, 0.2),
+              child: HelprBody(
+                  child: Row(
+                children: <Widget>[
+                  _ReputationCard(),
+                  Container(
+                    width: 2,
+                    color: colors["background"],
+                  ),
+                  _CreditsCard(),
+                ],
+              ))),
+        ],
+      ),
+      drawer: CustomDrawer(),
+    );
   }
 }
 
