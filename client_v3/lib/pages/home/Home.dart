@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:client_v3/pages/authentication/EmailConfirmation.dart';
 import 'package:client_v3/providers/SocketProvider.dart';
 import 'package:flutter/material.dart';
@@ -191,14 +193,23 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    _clientProvider.client.take(1).listen((client) {
+    _clientProvider.client.listen((client) {
+      if (client == null) return;
       if (!client.isConfirmed) {
         Navigator.of(context).pushReplacement(PageTransition(
             child: EmailConfirmation(), type: PageTransitionType.downToUp));
       } else {
-
-        socketProvider.channel.sink.add({"action": "add", "type": "client",  });
-
+        if (!socketProvider.sentAdd) {
+          socketProvider.channel.sink.add(json.encode({
+            "action": "add",
+            "user": {
+              "userName": client.name,
+              "type": "client",
+              "dbId": client.dbId
+            }
+          }));
+          socketProvider.sentAdd = true;
+        }
       }
     });
     super.initState();

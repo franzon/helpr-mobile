@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:client_v3/models/Address.dart';
 
 class Client {
+  String dbId;
   String email;
   String name;
   int credits;
@@ -10,7 +11,8 @@ class Client {
   bool isConfirmed;
 
   Client(
-      {@required this.email,
+      {@required this.dbId,
+      @required this.email,
       @required this.name,
       @required this.credits,
       @required this.reputation,
@@ -19,6 +21,7 @@ class Client {
 
   factory Client.clone(Client client) {
     return Client(
+        dbId: client.dbId,
         name: client.name,
         email: client.email,
         reputation: client.reputation,
