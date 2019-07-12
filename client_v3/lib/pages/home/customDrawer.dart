@@ -17,24 +17,19 @@ class _CustomDrawer extends State<CustomDrawer> {
   final _clientRepository = getIt<ClientRepository>();
 
   @override
-  void initState() {
-  }
+  void initState() {}
 
-  Future<void> signOut (context) async {
-    try{
+  Future<void> signOut(context) async {
+    try {
       await FlutterKeychain.remove(key: 'token');
 
       Navigator.of(context).pushReplacement(
-      PageTransition(
-        child: AuthenticationPage(),
-        type: PageTransitionType.downToUp,
-      ),
-    );
-    }
-    catch(e) {
-
-    }
-    
+        PageTransition(
+          child: AuthenticationPage(),
+          type: PageTransitionType.downToUp,
+        ),
+      );
+    } catch (e) {}
   }
 
   Widget build(BuildContext context) {
@@ -43,49 +38,48 @@ class _CustomDrawer extends State<CustomDrawer> {
         canvasColor: colors["background2"],
       ),
       child: Drawer(
-        child: ListView(
-          children: <Widget>[
-            UserAccountsDrawerHeader(
+          child: ListView(
+        children: <Widget>[
+          UserAccountsDrawerHeader(
               decoration: BoxDecoration(color: colors["background"]),
               accountName: FutureBuilder<Client>(
-                future: _clientRepository.getClient(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  return Text( snapshot.hasData ?snapshot.data.name : "User name");
-                }
-              ),
+                  future: _clientRepository.getClient(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    return Text(
+                        snapshot.hasData ? snapshot.data.name : "User name");
+                  }),
               accountEmail: FutureBuilder<Client>(
-                future: _clientRepository.getClient(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  return Text( snapshot.hasData ? snapshot.data.email : "user@host.ccc");
-                }
-              ),
+                  future: _clientRepository.getClient(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    return Text(snapshot.hasData
+                        ? snapshot.data.email
+                        : "user@host.ccc");
+                  }),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: colors["background2"],
                 child: FutureBuilder<Client>(
-                  future: _clientRepository.getClient(),
-                  builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    return Text(snapshot.hasData ? snapshot.data.name[0].toUpperCase() : "A",
-                      style: TextStyle(fontSize: 40.0)
-                    );
-                  }
-                ),
-              )
-            ),
-            ListTile(
-              trailing: IconButton(
-                icon: Icon(
-                  Icons.exit_to_app,
-                  color: Colors.white,
-                ),
-                tooltip: 'Sign Out',
-                onPressed: () => {
-                  this.signOut(context)
-                },
+                    future: _clientRepository.getClient(),
+                    builder: (BuildContext context, AsyncSnapshot snapshot) {
+                      return Text(
+                          snapshot.hasData
+                              ? snapshot.data.name[0].toUpperCase()
+                              : "A",
+                          style: TextStyle(
+                              fontSize: 40.0, color: colors["primary"]));
+                    }),
+              )),
+          ListTile(
+            trailing: IconButton(
+              icon: Icon(
+                Icons.exit_to_app,
+                color: Colors.white,
               ),
+              tooltip: 'Sign Out',
+              onPressed: () => {this.signOut(context)},
             ),
-          ],
-        )
-      ),
+          ),
+        ],
+      )),
     );
   }
 }

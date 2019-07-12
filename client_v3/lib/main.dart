@@ -1,9 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:client_v3/pages/authentication/Authentication.dart';
-import 'package:client_v3/pages/home/Home.dart';
 import 'package:client_v3/pages/start/Splash.dart';
-import 'package:client_v3/providers/ClientProvider.dart';
 import 'package:client_v3/setupSingletons.dart';
+import 'package:flutter/material.dart';
 
 void main() {
   setupRepositories();

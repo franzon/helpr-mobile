@@ -71,7 +71,11 @@ class _HomePageHeader extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 25.0, left: 40.0),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Icon(Icons.settings, color: Colors.white),
+                child: GestureDetector(
+                    onTap: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                    child: Icon(Icons.settings, color: Colors.white)),
               )),
           Padding(
             padding: const EdgeInsets.only(bottom: 25.0),
